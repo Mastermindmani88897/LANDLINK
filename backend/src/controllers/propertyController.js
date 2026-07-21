@@ -15,11 +15,27 @@ const createError = (message, statusCode) => {
 
 // Helper: populate seller details
 const populateProperty = async (property) => {
-  await property.populate('seller_id', '-password_hash');
+  if (property.seller_id) await property.populate('seller_id', '-password_hash');
+  if (property.seller) await property.populate('seller', '-password_hash');
   const json = property.toJSON();
-  if (json.seller_id && typeof json.seller_id === 'object') {
-    json.seller = json.seller_id;
-    json.seller_id = json.seller._id || json.seller.id;
+  const rawSeller = (json.seller && typeof json.seller === 'object') ? json.seller : json.seller_id;
+  if (rawSeller && typeof rawSeller === 'object') {
+    const formattedSeller = {
+      _id: rawSeller._id || rawSeller.id,
+      id: rawSeller.id || rawSeller._id,
+      name: rawSeller.full_name || rawSeller.name || 'Property Owner',
+      full_name: rawSeller.full_name || rawSeller.name || 'Property Owner',
+      email: rawSeller.email || json.contact_email || '',
+      phone: rawSeller.phone_number || rawSeller.phone || json.contact_number || '',
+      phone_number: rawSeller.phone_number || rawSeller.phone || json.contact_number || '',
+      whatsapp_number: rawSeller.whatsapp_number || json.whatsapp_number || '',
+      city: rawSeller.city || json.city || '',
+      state: rawSeller.state || json.state || '',
+      profileImage: rawSeller.profile_image_url || rawSeller.profileImage || null,
+      profile_image_url: rawSeller.profile_image_url || rawSeller.profileImage || null,
+    };
+    json.seller = formattedSeller;
+    json.seller_id = formattedSeller._id;
   }
   return json;
 };
@@ -200,15 +216,8 @@ const searchProperties = async (req, res) => {
   const sortMap = { newest: { created_at: -1 }, oldest: { created_at: 1 }, price_low: { expected_price: 1 }, price_high: { expected_price: -1 } };
   const sortOrder = sortMap[sort_by] || { created_at: -1 };
 
-  const properties = await Property.find(filter).sort(sortOrder).skip(parseInt(offset)).limit(parseInt(limit)).populate('seller_id', '-password_hash');
-  const result = properties.map((p) => {
-    const json = p.toJSON();
-    if (json.seller_id && typeof json.seller_id === 'object') {
-      json.seller = json.seller_id;
-      json.seller_id = json.seller._id || json.seller.id;
-    }
-    return json;
-  });
+  const properties = await Property.find(filter).sort(sortOrder).skip(parseInt(offset)).limit(parseInt(limit));
+  const result = await Promise.all(properties.map((p) => populateProperty(p)));
   res.json(result);
 };
 
@@ -283,6 +292,7 @@ const createProperty = async (req, res) => {
 
   const property = await Property.create({
     seller_id: req.user._id,
+    seller: req.user._id,
     title, description, property_type, house_type, land_factors, soil_and_infrastructure, commercial_plot_features, area_unit,
     expected_price: finalExpectedPrice,
     min_expected_price: finalMinPrice,
@@ -363,7 +373,7 @@ const createProperty = async (req, res) => {
 
 // GET /api/v1/properties/:id
 const getProperty = async (req, res) => {
-  const property = await Property.findById(req.params.id).populate('seller_id', '-password_hash');
+  const property = await Property.findById(req.params.id);
   if (!property) throw createError('Property not found', 404);
   res.json(await populateProperty(property));
 };

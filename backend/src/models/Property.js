@@ -20,6 +20,7 @@ const propertyImageSchema = new Schema(
 const propertySchema = new Schema(
   {
     seller_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    seller: { type: Schema.Types.ObjectId, ref: 'User' },
 
     // Core Info
     title: { type: String, required: true },

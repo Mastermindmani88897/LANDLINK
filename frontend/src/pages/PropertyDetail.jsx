@@ -7,7 +7,7 @@ import {
   Phone, MessageSquare, Calendar, Star, ShieldCheck,
   ArrowLeft, Sparkles, TrendingUp, Send, ChevronLeft, ChevronRight,
   Bed, Bath, Car, Maximize2, Home, Zap, Droplets, School, Stethoscope,
-  CheckCircle, AlertTriangle, X, Info, BarChart2, Eye, User, Edit, Trash2, Mail
+  CheckCircle, AlertTriangle, X, Info, BarChart2, Eye, User, Edit, Trash2, Mail, Copy
 } from 'lucide-react';
 
 function ScoreBar({ label, score, max = 10, color = '#6366f1' }) {
@@ -86,6 +86,7 @@ export default function PropertyDetail() {
   const [chatQuestion, setChatQuestion] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [chatLoading, setChatLoading] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
   const chatEndRef = useRef(null);
 
   const isOwner = user && property && (
@@ -272,10 +273,21 @@ export default function PropertyDetail() {
     );
   }
 
-  const sellerName = property.seller?.full_name || property.seller_id?.full_name || 'Property Owner';
-  const sellerPhone = property.contact_number || property.seller?.phone_number || '';
-  const sellerEmail = property.contact_email || property.seller?.email || '';
-  const sellerWhatsapp = property.whatsapp_number || property.seller?.whatsapp_number || sellerPhone;
+  const sellerObj = property.seller || property.seller_id || {};
+  const sellerName = sellerObj.name || sellerObj.full_name || property.seller_name || 'Property Owner';
+  const sellerPhone = property.contact_number || sellerObj.phone || sellerObj.phone_number || '';
+  const sellerEmail = property.contact_email || sellerObj.email || '';
+  const sellerWhatsapp = property.whatsapp_number || sellerObj.whatsapp_number || sellerPhone;
+  const sellerCity = sellerObj.city || property.city || '';
+  const sellerState = sellerObj.state || property.state || '';
+  const sellerImage = sellerObj.profileImage || sellerObj.profile_image_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop';
+
+  const handleCopyPhone = () => {
+    if (!sellerPhone) return;
+    navigator.clipboard.writeText(sellerPhone);
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
 
   const tabs = [
     { id: 'overview', label: 'Overview & Details' },
@@ -625,47 +637,116 @@ export default function PropertyDetail() {
             </div>
           </div>
 
-          {/* Detailed Seller Contact Card */}
-          <div className="glass-panel" style={{ borderRadius: '1.25rem', padding: '1.75rem', backgroundColor: 'rgba(13,9,37,0.5)', border: '1px solid rgba(99,102,241,0.2)' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <User size={18} style={{ color: '#818cf8' }} /> Seller Contact Information
-            </h3>
+          {/* Detailed Seller Information Card */}
+          <div className="glass-panel" style={{ borderRadius: '1.25rem', padding: '1.75rem', backgroundColor: 'rgba(13,9,37,0.5)', border: '1px solid rgba(99,102,241,0.25)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <User size={20} style={{ color: '#818cf8' }} /> Seller Information
+              </h3>
+              {isAuthenticated && (
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34d399', backgroundColor: 'rgba(52,211,153,0.1)', padding: '0.25rem 0.625rem', borderRadius: '9999px', border: '1px solid rgba(52,211,153,0.3)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <ShieldCheck size={14} /> Verified Seller
+                </span>
+              )}
+            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-                <div style={{ height: '3rem', width: '3rem', borderRadius: '9999px', overflow: 'hidden', border: '2px solid #6366f1', flexShrink: 0 }}>
-                  <img src={property.seller?.profile_image_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop'} alt={sellerName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {!isAuthenticated ? (
+              /* Guest View */
+              <div style={{ textAlign: 'center', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: '1rem', border: '1px dashed rgba(99,102,241,0.3)' }}>
+                <div style={{ padding: '1rem', borderRadius: '9999px', backgroundColor: 'rgba(99,102,241,0.1)', color: '#818cf8' }}>
+                  <ShieldCheck size={36} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc' }}>{sellerName}</div>
-                  <div style={{ fontSize: '11px', color: '#818cf8', fontWeight: 600 }}>Verified Seller</div>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.25rem' }}>Contact Seller</h4>
+                  <p style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
+                    Login to view seller contact details.
+                  </p>
+                </div>
+                <Link to="/auth" className="btn-primary" style={{ padding: '0.625rem 1.75rem', fontSize: '0.875rem', textDecoration: 'none', borderRadius: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <User size={16} /> Login to View Contact
+                </Link>
+              </div>
+            ) : (
+              /* Logged-in User View */
+              <div>
+                {/* Profile Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ height: '3.75rem', width: '3.75rem', borderRadius: '9999px', overflow: 'hidden', border: '2px solid #6366f1', flexShrink: 0, boxShadow: '0 4px 14px rgba(99,102,241,0.3)' }}>
+                    <img src={sellerImage} alt={sellerName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#f8fafc' }}>{sellerName}</div>
+                    {(sellerCity || sellerState) && (
+                      <div style={{ fontSize: '0.8125rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <MapPin size={14} style={{ color: '#818cf8' }} /> {sellerCity}{sellerCity && sellerState ? ', ' : ''}{sellerState}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Contact Section */}
+                <div style={{ marginTop: '1.25rem' }}>
+                  <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#a5b4fc', marginBottom: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Contact Seller
+                  </h4>
+
+                  {isOwner ? (
+                    <div style={{ padding: '1rem', borderRadius: '0.75rem', backgroundColor: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', textAlign: 'center', color: '#818cf8', fontWeight: 700, fontSize: '0.875rem' }}>
+                      This is your listing.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {/* Details Display */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', padding: '1rem', borderRadius: '0.875rem', backgroundColor: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        {sellerPhone && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#e2e8f0' }}>
+                            <Phone size={15} style={{ color: '#818cf8', flexShrink: 0 }} />
+                            <span><strong>Phone:</strong> {sellerPhone}</span>
+                          </div>
+                        )}
+                        {sellerEmail && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#e2e8f0' }}>
+                            <Mail size={15} style={{ color: '#818cf8', flexShrink: 0 }} />
+                            <span><strong>Email:</strong> {sellerEmail}</span>
+                          </div>
+                        )}
+                        {(sellerCity || sellerState) && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#e2e8f0' }}>
+                            <MapPin size={15} style={{ color: '#818cf8', flexShrink: 0 }} />
+                            <span><strong>City:</strong> {sellerCity || '—'}{sellerState ? `, ${sellerState}` : ''}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
+                        {sellerPhone && (
+                          <a href={`tel:${sellerPhone}`} className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', textDecoration: 'none', fontWeight: 700, borderRadius: '0.75rem' }}>
+                            <Phone size={15} /> Call Seller
+                          </a>
+                        )}
+                        {sellerEmail && (
+                          <a href={`mailto:${sellerEmail}`} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', textDecoration: 'none', fontWeight: 700, borderRadius: '0.75rem', borderColor: '#818cf8', color: '#818cf8' }}>
+                            <Mail size={15} /> Email Seller
+                          </a>
+                        )}
+                        {sellerPhone && (
+                          <button onClick={handleCopyPhone} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', fontWeight: 700, borderRadius: '0.75rem', backgroundColor: copiedPhone ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.05)', border: copiedPhone ? '1px solid rgba(52,211,153,0.4)' : '1px solid rgba(255,255,255,0.12)', color: copiedPhone ? '#34d399' : '#e2e8f0', cursor: 'pointer', transition: 'all 0.2s' }}>
+                            {copiedPhone ? <CheckCircle size={15} /> : <Copy size={15} />}
+                            {copiedPhone ? 'Copied!' : 'Copy Number'}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Instant Chat button */}
+                      <button onClick={() => setChatOpen(true)} className="btn-secondary" style={{ width: '100%', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem', marginTop: '0.25rem', borderRadius: '0.75rem' }}>
+                        <MessageSquare size={15} style={{ color: '#38bdf8' }} /> Chat with Seller
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', justifyContent: 'center' }}>
-                {sellerPhone && (
-                  <a href={`tel:${sellerPhone}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, color: '#e2e8f0', textDecoration: 'none' }}>
-                    <Phone size={14} style={{ color: '#818cf8' }} /> Mobile: {sellerPhone}
-                  </a>
-                )}
-                {sellerEmail && (
-                  <a href={`mailto:${sellerEmail}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, color: '#e2e8f0', textDecoration: 'none' }}>
-                    <Mail size={14} style={{ color: '#818cf8' }} /> Gmail: {sellerEmail}
-                  </a>
-                )}
-                {sellerWhatsapp && (
-                  <a href={`https://wa.me/${sellerWhatsapp.replace(/\D/g, '')}?text=Hi ${encodeURIComponent(sellerName)}, I'm interested in your property: ${encodeURIComponent(property.title)}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, color: '#34d399', textDecoration: 'none' }}>
-                    <MessageSquare size={14} style={{ color: '#34d399' }} /> WhatsApp: {sellerWhatsapp}
-                  </a>
-                )}
-              </div>
-            </div>
-
-            <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '1rem' }}>
-              <button onClick={() => setChatOpen(true)} className="btn-primary" style={{ flex: 1, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem' }}>
-                <MessageSquare size={15} /> Instant Chat with Seller
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>
