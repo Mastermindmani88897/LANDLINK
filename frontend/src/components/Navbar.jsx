@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../store/store';
+import { useTheme } from '../context/ThemeContext';
 import { api } from '../services/api';
 import { translations } from '../utils/translations';
 import {
-  Building2, User, LogOut, Sun, Moon, Menu, X, Heart,
-  MessageSquare, Sparkles, Globe, ShoppingBag, PlusCircle, Settings as SettingsIcon
+  Building2, User, LogOut, Sun, Moon, Laptop, Menu, X, Heart,
+  MessageSquare, Sparkles, Globe, ShoppingBag, PlusCircle, Shield, Settings as SettingsIcon
 } from 'lucide-react';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, clearAuth, language, setLanguage, isAuthModalOpen, openAuthModal, closeAuthModal } = useAppStore();
+  const { theme, setTheme } = useTheme();
   const t = translations[language] || translations.en;
 
-  const [isThemeLight, setIsThemeLight] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
 
   // Auth form state
   const [email, setEmail] = useState('');
@@ -25,24 +27,6 @@ export default function Navbar() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const isLight = localStorage.getItem('landlink_theme') === 'light';
-    setIsThemeLight(isLight);
-    if (isLight) document.documentElement.classList.add('light-theme');
-  }, []);
-
-  const toggleTheme = () => {
-    const next = !isThemeLight;
-    setIsThemeLight(next);
-    if (next) {
-      document.documentElement.classList.add('light-theme');
-      localStorage.setItem('landlink_theme', 'light');
-    } else {
-      document.documentElement.classList.remove('light-theme');
-      localStorage.setItem('landlink_theme', 'dark');
-    }
-  };
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +82,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav style={{ position: 'sticky', top: 0, zIndex: 40, width: '100%', backgroundColor: 'rgba(3,0,20,0.75)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 40, width: '100%', backgroundColor: 'rgba(3,0,20,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid var(--card-border)' }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -106,7 +90,7 @@ export default function Navbar() {
               <div style={{ borderRadius: '0.75rem', background: 'linear-gradient(135deg, #6366f1, #7c3aed)', padding: '0.5rem', color: 'white', boxShadow: '0 4px 14px rgba(99,102,241,0.4)' }}>
                 <Building2 size={22} />
               </div>
-              <span style={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '-0.025em', background: 'linear-gradient(to right, #ffffff, #c7d2fe, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.025em', background: 'linear-gradient(to right, #ffffff, #c7d2fe, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 {t.appName}
               </span>
             </Link>
@@ -121,14 +105,14 @@ export default function Navbar() {
                     key={link.path}
                     to={link.path}
                     onClick={(e) => {
-                      if (!isAuthenticated) {
+                      if (!isAuthenticated && link.path !== '/properties') {
                         e.preventDefault();
                         openAuthModal();
                       }
                     }}
-                    style={{ fontSize: '0.875rem', fontWeight: 600, color: active ? '#818cf8' : '#cbd5e1', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '0.375rem' }}
+                    style={{ fontSize: '0.875rem', fontWeight: 600, color: active ? '#818cf8' : 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '0.375rem' }}
                   >
-                    <Icon size={16} style={{ color: active ? '#818cf8' : '#94a3b8' }} />
+                    <Icon size={16} style={{ color: active ? '#818cf8' : 'var(--text-secondary)' }} />
                     {link.name}
                   </Link>
                 );
@@ -138,35 +122,59 @@ export default function Navbar() {
             {/* Controls */}
             <div className="hidden md:flex items-center gap-4">
               {/* Language Selector */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', backgroundColor: 'rgba(255,255,255,0.04)', padding: '0.25rem 0.5rem', borderRadius: '0.625rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', backgroundColor: 'rgba(255,255,255,0.04)', padding: '0.25rem 0.5rem', borderRadius: '0.625rem', border: '1px solid var(--card-border)' }}>
                 <Globe size={14} style={{ color: '#818cf8' }} />
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  style={{ background: 'transparent', border: 'none', color: '#e2e8f0', fontSize: '0.75rem', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.75rem', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
                 >
-                  <option value="en" style={{ backgroundColor: '#0d0925' }}>English</option>
-                  <option value="hi" style={{ backgroundColor: '#0d0925' }}>हिंदी (Hindi)</option>
-                  <option value="te" style={{ backgroundColor: '#0d0925' }}>తెలుగు (Telugu)</option>
+                  <option value="en" style={{ backgroundColor: '#0d0925', color: '#fff' }}>English</option>
+                  <option value="hi" style={{ backgroundColor: '#0d0925', color: '#fff' }}>हिंदी (Hindi)</option>
+                  <option value="te" style={{ backgroundColor: '#0d0925', color: '#fff' }}>తెలుగు (Telugu)</option>
                 </select>
               </div>
 
-              {/* Theme Toggle */}
-              <button onClick={toggleTheme} style={{ borderRadius: '0.75rem', padding: '0.5rem', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
-                {isThemeLight ? <Moon size={18} /> : <Sun size={18} />}
-              </button>
+              {/* Theme Dropdown Toggle */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowThemeMenu(!showThemeMenu)}
+                  title="Switch Theme"
+                  style={{ borderRadius: '0.75rem', padding: '0.5rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--card-border)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                >
+                  {theme === 'light' ? <Sun size={18} /> : theme === 'dark' ? <Moon size={18} /> : <Laptop size={18} />}
+                </button>
+
+                {showThemeMenu && (
+                  <div style={{ position: 'absolute', right: 0, marginTop: '0.5rem', width: '130px', backgroundColor: '#0d0925', border: '1px solid var(--card-border)', borderRadius: '0.75rem', padding: '0.375rem', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 50 }}>
+                    <button onClick={() => { setTheme('light'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'light' ? '#818cf8' : 'white', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
+                      <Sun size={14} /> Light Mode
+                    </button>
+                    <button onClick={() => { setTheme('dark'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'dark' ? '#818cf8' : 'white', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
+                      <Moon size={14} /> Dark Mode
+                    </button>
+                    <button onClick={() => { setTheme('system'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'system' ? '#818cf8' : 'white', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
+                      <Laptop size={14} /> System
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {isAuthenticated ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-                  <Link to="/my-listings" style={{ color: '#818cf8', display: 'flex', alignItems: 'center', padding: '0.375rem' }} title="My Listings">
-                    <Building2 size={18} />
-                  </Link>
-                  <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', paddingLeft: '0.5rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div style={{ height: '2rem', width: '2rem', borderRadius: '9999px', overflow: 'hidden', border: '1.5px solid #6366f1' }}>
+                  <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', paddingLeft: '0.5rem', borderLeft: '1px solid var(--card-border)' }}>
+                    <div style={{ height: '2.1rem', width: '2.1rem', borderRadius: '9999px', overflow: 'hidden', border: '1.5px solid #6366f1' }}>
                       <img src={user?.profile_image_url || user?.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop'} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f8fafc', maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name || user?.name || 'Profile'}</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name || user?.name || 'Profile'}</span>
                   </Link>
+
+                  {user?.role === 'admin' && (
+                    <Link to="/admin/dashboard" style={{ color: '#fbbf24', display: 'flex', alignItems: 'center', padding: '0.375rem' }} title="Admin Dashboard">
+                      <Shield size={18} />
+                    </Link>
+                  )}
+
                   <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600, color: '#fb7185', border: '1px solid rgba(239,68,68,0.25)', padding: '0.375rem 0.75rem', borderRadius: '0.625rem', background: 'rgba(239,68,68,0.05)', cursor: 'pointer' }}>
                     <LogOut size={13} /> {t.signOut}
                   </button>
@@ -180,10 +188,10 @@ export default function Navbar() {
 
             {/* Mobile toggle */}
             <div className="flex md:hidden items-center gap-3">
-              <button onClick={toggleTheme} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
-                {isThemeLight ? <Moon size={18} /> : <Sun size={18} />}
+              <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} style={{ color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                {theme === 'light' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={{ borderRadius: '0.75rem', padding: '0.5rem', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={{ borderRadius: '0.75rem', padding: '0.5rem', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}>
                 {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
@@ -192,7 +200,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div style={{ backgroundColor: 'rgba(3,0,20,0.98)', padding: '0.5rem 1rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ backgroundColor: 'rgba(3,0,20,0.98)', padding: '0.5rem 1rem 1rem', borderBottom: '1px solid var(--card-border)' }}>
             <div style={{ marginBottom: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <Globe size={14} style={{ color: '#818cf8' }} />
               <select value={language} onChange={(e) => setLanguage(e.target.value)} className="glass-input" style={{ fontSize: '0.75rem' }}>
@@ -205,24 +213,24 @@ export default function Navbar() {
               const Icon = link.icon;
               return (
                 <Link key={link.path} to={link.path} onClick={(e) => {
-                  if (!isAuthenticated) {
+                  if (!isAuthenticated && link.path !== '/properties') {
                     e.preventDefault();
                     openAuthModal();
                   }
                   setIsMobileMenuOpen(false);
-                }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.75rem', borderRadius: '0.75rem', fontSize: '1rem', fontWeight: 600, color: '#cbd5e1', textDecoration: 'none', marginBottom: '0.25rem' }}>
+                }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.75rem', borderRadius: '0.75rem', fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none', marginBottom: '0.25rem' }}>
                   <Icon size={18} style={{ color: '#818cf8' }} />
                   {link.name}
                 </Link>
               );
             })}
             {isAuthenticated ? (
-              <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '0.5rem' }}>
+              <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--card-border)', marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', marginBottom: '0.5rem' }}>
                   <img src={user?.profile_image_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop'} alt="Profile" style={{ height: '2.5rem', width: '2.5rem', borderRadius: '9999px', objectFit: 'cover' }} />
                   <div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#f8fafc' }}>{user?.full_name}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{user?.email}</div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>{user?.full_name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{user?.email}</div>
                   </div>
                 </div>
                 <button onClick={() => { logout(); setIsMobileMenuOpen(false); }} style={{ width: '100%', textAlign: 'left', padding: '0.625rem 0.75rem', color: '#fb7185', background: 'rgba(239,68,68,0.05)', border: 'none', cursor: 'pointer', borderRadius: '0.75rem', fontWeight: 600 }}>{t.signOut}</button>
@@ -246,7 +254,7 @@ export default function Navbar() {
               <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', color: '#818cf8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', marginBottom: '0.25rem' }}>
                 <Sparkles size={13} /> {t.appName}
               </span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{authMode === 'login' ? 'Welcome Back' : 'Create Account'}</h3>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>{authMode === 'login' ? 'Welcome Back' : 'Create Account'}</h3>
               <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
                 Sign in to access Buying Options, Selling Options, and Personal Settings
               </p>

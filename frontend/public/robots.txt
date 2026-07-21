@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /messages/
+
+Sitemap: https://landlink-ai.vercel.app/sitemap.xml
