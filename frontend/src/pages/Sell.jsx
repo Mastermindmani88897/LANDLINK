@@ -95,9 +95,7 @@ export default function Sell() {
   const [sellerEmail, setSellerEmail] = useState(user?.email || '');
 
   // Images state
-  const [imageUrls, setImageUrls] = useState([
-    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&fit=crop'
-  ]);
+  const [imageUrls, setImageUrls] = useState([]);
   const [urlInput, setUrlInput] = useState('');
 
   const [isAiDescLoading, setIsAiDescLoading] = useState(false);
@@ -903,6 +901,58 @@ export default function Sell() {
               </motion.div>
             )}
 
+            {/* Step 4: Photos */}
+            {currentStep === 4 && (
+              <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
+                  Step 4: Upload Property Images
+                </h3>
+
+                <div style={{ border: '2px dashed rgba(99,102,241,0.4)', borderRadius: '1.25rem', padding: '2rem', textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.03)' }}>
+                  <Upload size={32} style={{ color: '#818cf8', margin: '0 auto 0.75rem' }} />
+                  <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+                    Drag & Drop Property Photos Here
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Supports PNG, JPG, WEBP formats</p>
+                  <input type="file" multiple accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} id="photo-upload-input" />
+                  <label htmlFor="photo-upload-input" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer', display: 'inline-block' }}>
+                    Select Files from Device
+                  </label>
+                </div>
+
+                {/* Direct Image URL Add */}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="url"
+                    placeholder="Or paste an image web URL..."
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    className="glass-input"
+                    style={{ fontSize: '0.8125rem' }}
+                  />
+                  <button type="button" onClick={handleAddUrl} className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.8125rem', flexShrink: 0 }}>
+                    Add URL
+                  </button>
+                </div>
+
+                {/* Uploaded Thumbnails Grid */}
+                {imageUrls.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+                    {imageUrls.map((img, i) => (
+                      <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
+                        <img src={img} alt={`Upload ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button type="button" onClick={() => handleRemoveImage(i)} style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'rgba(239,68,68,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8125rem', marginTop: '0.5rem' }}>No images added yet. Upload photos or add a URL above.</p>
+                )}
+              </motion.div>
+            )}
+
             {/* Step 5: AI Copywriter & Valuation */}
             {currentStep === 5 && (
               <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -1023,133 +1073,6 @@ export default function Sell() {
                       )}
                     </div>
                   )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 4: Photos */}
-            {currentStep === 4 && (
-              <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
-                  Step 4: Upload Property Images
-                </h3>
-
-                <div style={{ border: '2px dashed rgba(99,102,241,0.4)', borderRadius: '1.25rem', padding: '2rem', textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.03)' }}>
-                  <Upload size={32} style={{ color: '#818cf8', margin: '0 auto 0.75rem' }} />
-                  <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-                    Drag & Drop Property Photos Here
-                  </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Supports PNG, JPG, WEBP formats</p>
-                  <input type="file" multiple accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} id="photo-upload-input" />
-                  <label htmlFor="photo-upload-input" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer', display: 'inline-block' }}>
-                    Select Files from Device
-                  </label>
-                </div>
-
-                {/* Direct Image URL Add */}
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input
-                    type="url"
-                    placeholder="Or paste an image web URL..."
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    className="glass-input"
-                    style={{ fontSize: '0.8125rem' }}
-                  />
-                  <button type="button" onClick={handleAddUrl} className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.8125rem', flexShrink: 0 }}>
-                    Add URL
-                  </button>
-                </div>
-
-                {/* Uploaded Thumbnails Grid */}
-                {imageUrls.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
-                    {imageUrls.map((img, i) => (
-                      <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
-                        <img src={img} alt={`Upload ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <button type="button" onClick={() => handleRemoveImage(i)} style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'rgba(239,68,68,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* Step 5: AI Copywriter & Valuation */}
-            {currentStep === 5 && (
-              <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
-                  Step 5: AI Copywriter & Neural Valuation
-                </h3>
-
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                  <button type="button" onClick={handleGenerateAiDescription} disabled={isAiDescLoading} className="btn-secondary" style={{ padding: '0.625rem 1.25rem', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#818cf8', borderColor: 'rgba(99,102,241,0.3)' }}>
-                    <Sparkles size={16} /> {isAiDescLoading ? 'Generating...' : 'Auto-Generate AI Copywriting'}
-                  </button>
-                  <button type="button" onClick={handleAiValuation} disabled={isAiPriceLoading} className="btn-secondary" style={{ padding: '0.625rem 1.25rem', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#34d399', borderColor: 'rgba(16,185,129,0.3)' }}>
-                    <DollarSign size={16} /> {isAiPriceLoading ? 'Calculating...' : 'Run AI Price Benchmark'}
-                  </button>
-                </div>
-
-                {aiValuationResult && (
-                  <div style={{ padding: '1rem', borderRadius: '0.875rem', backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399', fontSize: '0.8125rem', fontWeight: 700 }}>
-                    AI Estimated Value: ₹ {Math.round(aiValuationResult.estimated_price).toLocaleString('en-IN')} (High Precision Valuation)
-                  </div>
-                )}
-
-                <div>
-                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Property Description Narrative</label>
-                  <textarea
-                    rows={5}
-                    placeholder="Describe key highlights, neighborhood features, and interior furnishings..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="glass-input"
-                    style={{ fontSize: '0.875rem', lineHeight: 1.6 }}
-                  />
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 6: Live Preview */}
-            {currentStep === 6 && (
-              <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
-                  Step 6: Listing Live Preview
-                </h3>
-
-                <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                  This is how your property card will appear to prospective buyers on the LandLink AI marketplace.
-                </p>
-
-                <div style={{ maxWidth: '360px', margin: '0 auto', width: '100%' }}>
-                  <PropertyCard
-                    property={{
-                      id: editId || 'preview-id',
-                      _id: editId || 'preview-id',
-                      title: title || 'Sample Property Title',
-                      price: parseFloat(expectedPrice || 100000),
-                      expected_price: parseFloat(expectedPrice || 100000),
-                      min_expected_price: minExpectedPrice ? parseFloat(minExpectedPrice) : null,
-                      max_expected_price: maxExpectedPrice ? parseFloat(maxExpectedPrice) : null,
-                      city: city || 'Mumbai',
-                      locality: address,
-                      property_type: propertyType,
-                      house_type: houseType,
-                      bedrooms: parseInt(bedrooms || 0),
-                      bathrooms: parseInt(bathrooms || 0),
-                      area_sqft: parseFloat(areaSqft || 1000),
-                      land_factors: selectedLandFactors,
-                      soil_and_infrastructure: selectedSoilAndInfra,
-                      commercial_plot_features: commercialPlotFeatures,
-                      villa_amenities: villaAmenities,
-                      images: imageUrls.map((url) => (typeof url === 'string' ? { image_url: url } : url)),
-                      is_verified: true,
-                      seller_type: 'owner',
-                    }}
-                  />
                 </div>
               </motion.div>
             )}
