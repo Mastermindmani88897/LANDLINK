@@ -100,10 +100,10 @@ export default function Sell() {
         if (prop.min_expected_price) setMinExpectedPrice(String(prop.min_expected_price));
         if (prop.max_expected_price) setMaxExpectedPrice(String(prop.max_expected_price));
         if (prop.area_sqft) setAreaSqft(String(prop.area_sqft));
-        if (prop.bedrooms) setBedrooms(String(prop.bedrooms));
-        if (prop.bathrooms) setBathrooms(String(prop.bathrooms));
-        if (prop.floors) setFloors(String(prop.floors));
-        if (prop.parking) setParking(String(prop.parking));
+        if (prop.bedrooms !== undefined && prop.bedrooms !== null) setBedrooms(String(prop.bedrooms));
+        if (prop.bathrooms !== undefined && prop.bathrooms !== null) setBathrooms(String(prop.bathrooms));
+        if (prop.floors !== undefined && prop.floors !== null) setFloors(String(prop.floors));
+        if (prop.parking !== undefined && prop.parking !== null) setParking(String(prop.parking));
         if (prop.address) setAddress(prop.address);
         if (prop.city) setCity(prop.city);
         if (prop.state) setState(prop.state);
@@ -113,8 +113,10 @@ export default function Sell() {
         if (prop.contact_email) setSellerEmail(prop.contact_email);
         if (prop.land_factors?.length) setSelectedLandFactors(prop.land_factors);
         if (prop.soil_and_infrastructure?.length) setSelectedSoilAndInfra(prop.soil_and_infrastructure);
+        if (prop.commercial_plot_features?.length) setCommercialPlotFeatures(prop.commercial_plot_features);
+        if (prop.villa_amenities?.length) setVillaAmenities(prop.villa_amenities);
         if (prop.images?.length) {
-          setImageUrls(prop.images.map(img => typeof img === 'string' ? img : img.image_url));
+          setImageUrls(prop.images.map(img => typeof img === 'string' ? img : img.image_url || img.url));
         }
       } catch (err) {
         console.error('Failed to load property for editing:', err);
@@ -133,6 +135,18 @@ export default function Sell() {
   const toggleSoilAndInfra = (item) => {
     setSelectedSoilAndInfra((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
+  };
+
+  const toggleCommercialPlotFeature = (feature) => {
+    setCommercialPlotFeatures((prev) =>
+      prev.includes(feature) ? prev.filter((f) => f !== feature) : [...prev, feature]
+    );
+  };
+
+  const toggleVillaAmenity = (amenity) => {
+    setVillaAmenities((prev) =>
+      prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
     );
   };
 
@@ -221,10 +235,10 @@ export default function Sell() {
         max_expected_price: maxExpectedPrice ? parseFloat(maxExpectedPrice) : null,
         area_sqft: parseFloat(areaSqft || 1000),
         area_unit: areaUnit,
-        bedrooms: parseInt(bedrooms || 2),
-        bathrooms: parseInt(bathrooms || 2),
+        bedrooms: parseInt(bedrooms || 0),
+        bathrooms: parseInt(bathrooms || 0),
         floors: parseInt(floors || 1),
-        parking: parseInt(parking || 1),
+        parking: parseInt(parking || 0),
         address,
         city,
         state,
@@ -234,6 +248,8 @@ export default function Sell() {
         contact_email: sellerEmail,
         land_factors: selectedLandFactors,
         soil_and_infrastructure: selectedSoilAndInfra,
+        commercial_plot_features: commercialPlotFeatures,
+        villa_amenities: villaAmenities,
         image_urls: imageUrls,
         status: 'approved',
       };
@@ -313,7 +329,7 @@ export default function Sell() {
                   >
                     {isDone ? <CheckCircle2 size={16} /> : num}
                   </div>
-                  <span style={{ fontSize: '0.6875rem', fontWeight: isCurrent ? 800 : 600, color: isCurrent ? '#818cf8' : 'var(--text-secondary)', display: 'none', smDisplay: 'block' }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: isCurrent ? 800 : 600, color: isCurrent ? '#818cf8' : 'var(--text-secondary)' }}>
                     {st}
                   </span>
                 </div>
@@ -410,8 +426,59 @@ export default function Sell() {
                   </div>
                 </div>
 
+                {/* Category Specific Feature Options */}
+                {propertyType === 'Commercial' && (
+                  <div>
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Commercial Infrastructure & Utility Options</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.625rem' }}>
+                      {COMMERCIAL_PLOT_OPTIONS.map((item) => {
+                        const selected = commercialPlotFeatures.includes(item);
+                        return (
+                          <div
+                            key={item}
+                            onClick={() => toggleCommercialPlotFeature(item)}
+                            style={{
+                              padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
+                              backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                              border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
+                              color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
+                            }}
+                          >
+                            {selected ? '✓ ' : '+ '}{item}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {(propertyType === 'Agricultural Land' || propertyType === 'Land') && (
+                  <div>
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Land Cost & Access Factors</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.625rem' }}>
+                      {LAND_COST_FACTORS.map((item) => {
+                        const selected = selectedLandFactors.includes(item);
+                        return (
+                          <div
+                            key={item}
+                            onClick={() => toggleLandFactor(item)}
+                            style={{
+                              padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
+                              backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                              border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
+                              color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
+                            }}
+                          >
+                            {selected ? '✓ ' : '+ '}{item}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <div>
-                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Select Land & Infrastructure Features</label>
+                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Soil & Infrastructure Features</label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.625rem' }}>
                     {SOIL_AND_INFRASTRUCTURE.map((item) => {
                       const selected = selectedSoilAndInfra.includes(item);
@@ -535,14 +602,25 @@ export default function Sell() {
                 <div style={{ maxWidth: '360px', margin: '0 auto', width: '100%' }}>
                   <PropertyCard
                     property={{
+                      id: editId || 'preview-id',
+                      _id: editId || 'preview-id',
                       title: title || 'Sample Property Title',
                       price: parseFloat(expectedPrice || 100000),
+                      expected_price: parseFloat(expectedPrice || 100000),
+                      min_expected_price: minExpectedPrice ? parseFloat(minExpectedPrice) : null,
+                      max_expected_price: maxExpectedPrice ? parseFloat(maxExpectedPrice) : null,
                       city: city || 'Mumbai',
+                      locality: address,
                       property_type: propertyType,
-                      bedrooms: parseInt(bedrooms || 2),
-                      bathrooms: parseInt(bathrooms || 2),
+                      house_type: houseType,
+                      bedrooms: parseInt(bedrooms || 0),
+                      bathrooms: parseInt(bathrooms || 0),
                       area_sqft: parseFloat(areaSqft || 1000),
-                      images: imageUrls,
+                      land_factors: selectedLandFactors,
+                      soil_and_infrastructure: selectedSoilAndInfra,
+                      commercial_plot_features: commercialPlotFeatures,
+                      villa_amenities: villaAmenities,
+                      images: imageUrls.map((url) => (typeof url === 'string' ? { image_url: url } : url)),
                       is_verified: true,
                       seller_type: 'owner',
                     }}
@@ -558,10 +636,10 @@ export default function Sell() {
                   <CheckCircle2 size={40} />
                 </div>
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                  Listing Published Successfully!
+                  {isEditMode ? 'Listing Updated Successfully!' : 'Listing Published Successfully!'}
                 </h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', marginBottom: '2rem' }}>
-                  Your property is now live on LandLink AI with direct owner contact details.
+                  Your property is live on LandLink AI with direct owner contact details.
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
                   <button onClick={() => navigate('/properties')} className="btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '0.875rem' }}>
@@ -591,7 +669,7 @@ export default function Sell() {
 
               {currentStep === 6 ? (
                 <button type="button" onClick={handleSubmit} disabled={isSubmitting} className="btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {isSubmitting ? 'Publishing...' : 'Publish Listing Now'} <CheckCircle2 size={16} />
+                  {isSubmitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Publish Listing Now'} <CheckCircle2 size={16} />
                 </button>
               ) : (
                 <button type="button" onClick={nextStep} className="btn-primary" style={{ padding: '0.75rem 1.75rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

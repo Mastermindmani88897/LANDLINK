@@ -435,7 +435,7 @@ const updateProperty = async (req, res) => {
   }
 
   const {
-    title, description, property_type, house_type, land_factors, soil_and_infrastructure, expected_price, original_price, negotiable,
+    title, description, property_type, house_type, land_factors, soil_and_infrastructure, commercial_plot_features, area_unit, expected_price, original_price, negotiable,
     area_sqft, bedrooms, bathrooms, floors, parking, year_built,
     ownership_type, property_age, furnished_status,
     house_bedrooms, house_bathrooms, house_age, house_total_rooms, house_total_floors,

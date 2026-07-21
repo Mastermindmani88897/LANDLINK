@@ -493,11 +493,31 @@ export default function PropertyDetail() {
                   <div>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem' }}>Amenities & Features</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.875rem' }}>
-                      {(property.amenities || property.villa_amenities || ['Security System', 'Power Backup', 'Water Supply', 'Elevator', 'Clubhouse', 'Swimming Pool']).map((item) => (
-                        <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.875rem', borderRadius: '0.75rem', backgroundColor: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '0.8125rem', color: 'var(--text-primary)', fontWeight: 600 }}>
-                          <CheckCircle size={15} style={{ color: '#34d399' }} /> {item}
-                        </div>
-                      ))}
+                      {Array.from(new Set([
+                        ...(property.amenities || []),
+                        ...(property.villa_amenities || []),
+                        ...(property.commercial_plot_features || []),
+                        ...(property.land_factors || []),
+                        ...(property.soil_and_infrastructure || []),
+                      ])).length > 0 ? (
+                        Array.from(new Set([
+                          ...(property.amenities || []),
+                          ...(property.villa_amenities || []),
+                          ...(property.commercial_plot_features || []),
+                          ...(property.land_factors || []),
+                          ...(property.soil_and_infrastructure || []),
+                        ])).map((item) => (
+                          <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.875rem', borderRadius: '0.75rem', backgroundColor: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '0.8125rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                            <CheckCircle size={15} style={{ color: '#34d399' }} /> {item}
+                          </div>
+                        ))
+                      ) : (
+                        ['Security System', 'Power Backup', 'Water Supply', 'Elevator', 'Clubhouse', 'Swimming Pool'].map((item) => (
+                          <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 0.875rem', borderRadius: '0.75rem', backgroundColor: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '0.8125rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                            <CheckCircle size={15} style={{ color: '#34d399' }} /> {item}
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
