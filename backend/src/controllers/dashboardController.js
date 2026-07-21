@@ -8,7 +8,9 @@ const getUserDashboard = async (req, res) => {
   const userId = req.user._id;
 
   // 1. Listings created by this user
-  const myProperties = await Property.find({ seller_id: userId }).sort({ created_at: -1 });
+  const myProperties = await Property.find({
+    $or: [{ seller_id: userId }, { seller: userId }]
+  }).sort({ created_at: -1 });
   const myPropIds = myProperties.map((p) => p._id);
 
   // 2. Visits requested for my properties (I am seller)

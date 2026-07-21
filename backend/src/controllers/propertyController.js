@@ -58,6 +58,9 @@ const searchProperties = async (req, res) => {
   } = req.query;
 
   const filter = {};
+  if (city) {
+    filter.city = new RegExp(city, 'i');
+  }
   if (property_type) {
     if (property_type === 'Flat') {
       filter.property_type = { $in: ['Flat', 'Flat/Apartment'] };
