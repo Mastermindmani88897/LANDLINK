@@ -2,11 +2,31 @@
 
 export const PROPERTY_TYPES = [
   'House',
-  'Villa',
-  'Flat',
   'Apartment',
-  'Agricultural Land',
+  'Flat',
+  'Villa',
+  'Residential Plot',
+  'Commercial Plot',
+  'Commercial Building',
   'Commercial',
+  'Agricultural Land',
+];
+
+export const FURNISHED_STATUS_OPTIONS = [
+  'Unfurnished',
+  'Semi-Furnished',
+  'Fully Furnished',
+];
+
+export const PLOT_FACING_OPTIONS = [
+  'East',
+  'West',
+  'North',
+  'South',
+  'North-East',
+  'North-West',
+  'South-East',
+  'South-West',
 ];
 
 export const COMMERCIAL_PLOT_OPTIONS = [

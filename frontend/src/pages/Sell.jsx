@@ -7,7 +7,8 @@ import { translations } from '../utils/translations';
 import {
   PROPERTY_TYPES, HOUSE_TYPES, VILLA_AMENITIES_OPTIONS,
   ACCESS_ROAD_TYPES, CROPPING_INTENSITY_OPTIONS,
-  LAND_COST_FACTORS, SOIL_AND_INFRASTRUCTURE, COMMERCIAL_PLOT_OPTIONS, AREA_UNITS
+  LAND_COST_FACTORS, SOIL_AND_INFRASTRUCTURE, COMMERCIAL_PLOT_OPTIONS, AREA_UNITS,
+  FURNISHED_STATUS_OPTIONS, PLOT_FACING_OPTIONS
 } from '../utils/propertyConstants';
 import {
   Sparkles, DollarSign, Image as ImageIcon, Upload, X, Plus, Phone, Mail, User, MapPin,
@@ -41,17 +42,36 @@ export default function Sell() {
   const [houseBedrooms, setHouseBedrooms] = useState('3');
   const [houseBathrooms, setHouseBathrooms] = useState('2');
   const [houseAge, setHouseAge] = useState('3');
+  const [houseTotalRooms, setHouseTotalRooms] = useState('5');
+  const [houseTotalFloors, setHouseTotalFloors] = useState('2');
 
   // Villa Specific Fields
   const [villaBedrooms, setVillaBedrooms] = useState('4');
   const [villaBathrooms, setVillaBathrooms] = useState('4');
+  const [villaTotalFloors, setVillaTotalFloors] = useState('2');
   const [villaPlotArea, setVillaPlotArea] = useState('3500');
   const [villaAmenities, setVillaAmenities] = useState(['Private Pool', 'Private Garden', 'Private Boundary Wall']);
 
   // Apartment Specific Fields
   const [apartmentTotalFloors, setApartmentTotalFloors] = useState('12');
+  const [apartmentRoomsPerFloor, setApartmentRoomsPerFloor] = useState('4');
   const [apartmentUnitBedrooms, setApartmentUnitBedrooms] = useState('2');
   const [apartmentUnitBathrooms, setApartmentUnitBathrooms] = useState('2');
+  const [apartmentUnitsPerFloor, setApartmentUnitsPerFloor] = useState('4');
+  const [apartmentTotalFlats, setApartmentTotalFlats] = useState('48');
+  const [flatFloorNumber, setFlatFloorNumber] = useState('3');
+
+  // Land / Plot & Commercial Specific Fields
+  const [accessRoadType, setAccessRoadType] = useState('Highway Road');
+  const [cornerPlotStatus, setCornerPlotStatus] = useState(false);
+  const [plotFacing, setPlotFacing] = useState('East');
+  const [furnishedStatus, setFurnishedStatus] = useState('Semi-Furnished');
+
+  // Agricultural Specific Fields
+  const [croppingIntensity, setCroppingIntensity] = useState('Dual-crop');
+  const [cropFallowDuration, setCropFallowDuration] = useState('1');
+  const [waterPumpCount, setWaterPumpCount] = useState('1');
+  const [solarGridIntegration, setSolarGridIntegration] = useState(false);
 
   const [selectedLandFactors, setSelectedLandFactors] = useState([]);
   const [selectedSoilAndInfra, setSelectedSoilAndInfra] = useState([]);
@@ -118,6 +138,40 @@ export default function Sell() {
         if (prop.images?.length) {
           setImageUrls(prop.images.map(img => typeof img === 'string' ? img : img.image_url || img.url));
         }
+
+        // House
+        if (prop.house_bedrooms !== undefined && prop.house_bedrooms !== null) setHouseBedrooms(String(prop.house_bedrooms));
+        if (prop.house_bathrooms !== undefined && prop.house_bathrooms !== null) setHouseBathrooms(String(prop.house_bathrooms));
+        if (prop.house_age !== undefined && prop.house_age !== null) setHouseAge(String(prop.house_age));
+        if (prop.house_total_rooms !== undefined && prop.house_total_rooms !== null) setHouseTotalRooms(String(prop.house_total_rooms));
+        if (prop.house_total_floors !== undefined && prop.house_total_floors !== null) setHouseTotalFloors(String(prop.house_total_floors));
+
+        // Villa
+        if (prop.villa_bedrooms !== undefined && prop.villa_bedrooms !== null) setVillaBedrooms(String(prop.villa_bedrooms));
+        if (prop.villa_bathrooms !== undefined && prop.villa_bathrooms !== null) setVillaBathrooms(String(prop.villa_bathrooms));
+        if (prop.villa_total_floors !== undefined && prop.villa_total_floors !== null) setVillaTotalFloors(String(prop.villa_total_floors));
+        if (prop.villa_plot_area !== undefined && prop.villa_plot_area !== null) setVillaPlotArea(String(prop.villa_plot_area));
+
+        // Apartment
+        if (prop.apartment_total_floors !== undefined && prop.apartment_total_floors !== null) setApartmentTotalFloors(String(prop.apartment_total_floors));
+        if (prop.apartment_rooms_per_floor !== undefined && prop.apartment_rooms_per_floor !== null) setApartmentRoomsPerFloor(String(prop.apartment_rooms_per_floor));
+        if (prop.apartment_unit_bedrooms !== undefined && prop.apartment_unit_bedrooms !== null) setApartmentUnitBedrooms(String(prop.apartment_unit_bedrooms));
+        if (prop.apartment_unit_bathrooms !== undefined && prop.apartment_unit_bathrooms !== null) setApartmentUnitBathrooms(String(prop.apartment_unit_bathrooms));
+        if (prop.apartment_units_per_floor !== undefined && prop.apartment_units_per_floor !== null) setApartmentUnitsPerFloor(String(prop.apartment_units_per_floor));
+        if (prop.apartment_total_flats !== undefined && prop.apartment_total_flats !== null) setApartmentTotalFlats(String(prop.apartment_total_flats));
+        if (prop.flat_floor_number !== undefined && prop.flat_floor_number !== null) setFlatFloorNumber(String(prop.flat_floor_number));
+
+        // Plots & Agricultural
+        if (prop.access_road_type) setAccessRoadType(prop.access_road_type);
+        if (prop.corner_plot_status !== undefined && prop.corner_plot_status !== null) setCornerPlotStatus(Boolean(prop.corner_plot_status));
+        if (prop.plot_facing) setPlotFacing(prop.plot_facing);
+        if (prop.furnished_status) setFurnishedStatus(prop.furnished_status);
+
+        if (prop.cropping_intensity) setCroppingIntensity(prop.cropping_intensity);
+        if (prop.crop_fallow_duration !== undefined && prop.crop_fallow_duration !== null) setCropFallowDuration(String(prop.crop_fallow_duration));
+        if (prop.water_pump_count !== undefined && prop.water_pump_count !== null) setWaterPumpCount(String(prop.water_pump_count));
+        if (prop.solar_grid_integration !== undefined && prop.solar_grid_integration !== null) setSolarGridIntegration(Boolean(prop.solar_grid_integration));
+
       } catch (err) {
         console.error('Failed to load property for editing:', err);
         setErrorMsg('Failed to load listing details.');
@@ -252,6 +306,40 @@ export default function Sell() {
         villa_amenities: villaAmenities,
         image_urls: imageUrls,
         status: 'approved',
+
+        // House Specific
+        house_bedrooms: parseInt(houseBedrooms || 0),
+        house_bathrooms: parseInt(houseBathrooms || 0),
+        house_age: parseFloat(houseAge || 0),
+        house_total_rooms: parseInt(houseTotalRooms || 0),
+        house_total_floors: parseInt(houseTotalFloors || 1),
+
+        // Villa Specific
+        villa_bedrooms: parseInt(villaBedrooms || 0),
+        villa_bathrooms: parseInt(villaBathrooms || 0),
+        villa_total_floors: parseInt(villaTotalFloors || 1),
+        villa_plot_area: parseFloat(villaPlotArea || 0),
+
+        // Apartment Specific
+        apartment_total_floors: parseInt(apartmentTotalFloors || 1),
+        apartment_rooms_per_floor: parseInt(apartmentRoomsPerFloor || 0),
+        apartment_unit_bedrooms: parseInt(apartmentUnitBedrooms || 0),
+        apartment_unit_bathrooms: parseInt(apartmentUnitBathrooms || 0),
+        apartment_units_per_floor: parseInt(apartmentUnitsPerFloor || 1),
+        apartment_total_flats: parseInt(apartmentTotalFlats || 0),
+        flat_floor_number: parseInt(flatFloorNumber || 1),
+
+        // Plots / Land / Access Road / Utilities
+        access_road_type: accessRoadType,
+        corner_plot_status: Boolean(cornerPlotStatus),
+        plot_facing: plotFacing,
+        furnished_status: furnishedStatus,
+
+        // Agricultural
+        cropping_intensity: croppingIntensity,
+        crop_fallow_duration: parseFloat(cropFallowDuration || 0),
+        water_pump_count: parseInt(waterPumpCount || 0),
+        solar_grid_integration: Boolean(solarGridIntegration),
       };
 
       if (isEditMode) {
@@ -406,99 +494,352 @@ export default function Sell() {
             {currentStep === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
-                  Step 3: Property Specs & Features
+                  Step 3: Property Specs & Features ({propertyType})
                 </h3>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.25rem' }}>
+                {/* Common Basic Specs */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.25rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
                   <div>
-                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Area (Sq. Ft)</label>
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total Area ({areaUnit})</label>
                     <input type="number" placeholder="1200" value={areaSqft} onChange={(e) => setAreaSqft(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Bedrooms</label>
-                    <input type="number" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Area Unit</label>
+                    <select value={areaUnit} onChange={(e) => setAreaUnit(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                      {AREA_UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+                    </select>
+                  </div>
+
+                  {(propertyType === 'House' || propertyType === 'Villa' || propertyType === 'Apartment' || propertyType === 'Flat') && (
+                    <>
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Bedrooms</label>
+                        <input type="number" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Bathrooms</label>
+                        <input type="number" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+                    </>
+                  )}
+
+                  <div>
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total Floors</label>
+                    <input type="number" value={floors} onChange={(e) => setFloors(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Bathrooms</label>
-                    <input type="number" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Parking Spaces</label>
+                    <input type="number" value={parking} onChange={(e) => setParking(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
                   </div>
                 </div>
 
-                {/* Category Specific Feature Options */}
-                {propertyType === 'Commercial' && (
-                  <div>
-                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Commercial Infrastructure & Utility Options</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.625rem' }}>
-                      {COMMERCIAL_PLOT_OPTIONS.map((item) => {
-                        const selected = commercialPlotFeatures.includes(item);
-                        return (
-                          <div
-                            key={item}
-                            onClick={() => toggleCommercialPlotFeature(item)}
-                            style={{
-                              padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
-                              backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
-                              border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
-                              color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
-                            }}
-                          >
-                            {selected ? '✓ ' : '+ '}{item}
-                          </div>
-                        );
-                      })}
+                {/* 1. HOUSE SPECIFIC SPECIFICATIONS */}
+                {propertyType === 'House' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#818cf8' }}>House Specifications</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>House Construction Sub-Type</label>
+                        <select value={houseType} onChange={(e) => setHouseType(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          {HOUSE_TYPES.map((ht) => <option key={ht} value={ht}>{ht}</option>)}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Furnished Status</label>
+                        <select value={furnishedStatus} onChange={(e) => setFurnishedStatus(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          {FURNISHED_STATUS_OPTIONS.map((fs) => <option key={fs} value={fs}>{fs}</option>)}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total Bedrooms in Structure</label>
+                        <input type="number" value={houseBedrooms} onChange={(e) => setHouseBedrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total Bathrooms in Structure</label>
+                        <input type="number" value={houseBathrooms} onChange={(e) => setHouseBathrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Property Age (Years)</label>
+                        <input type="number" value={houseAge} onChange={(e) => setHouseAge(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total Rooms (Excl. Bathrooms)</label>
+                        <input type="number" value={houseTotalRooms} onChange={(e) => setHouseTotalRooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total House Floors</label>
+                        <input type="number" value={houseTotalFloors} onChange={(e) => setHouseTotalFloors(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
                     </div>
                   </div>
                 )}
 
-                {(propertyType === 'Agricultural Land' || propertyType === 'Land') && (
-                  <div>
-                    <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Land Cost & Access Factors</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.625rem' }}>
-                      {LAND_COST_FACTORS.map((item) => {
-                        const selected = selectedLandFactors.includes(item);
-                        return (
-                          <div
-                            key={item}
-                            onClick={() => toggleLandFactor(item)}
-                            style={{
-                              padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
-                              backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
-                              border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
-                              color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
-                            }}
-                          >
-                            {selected ? '✓ ' : '+ '}{item}
-                          </div>
-                        );
-                      })}
+                {/* 2. VILLA SPECIFIC SPECIFICATIONS */}
+                {propertyType === 'Villa' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#818cf8' }}>Villa Specifications</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Villa Private Bedrooms</label>
+                        <input type="number" value={villaBedrooms} onChange={(e) => setVillaBedrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Villa Private Bathrooms</label>
+                        <input type="number" value={villaBathrooms} onChange={(e) => setVillaBathrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Villa Structural Stories</label>
+                        <input type="number" value={villaTotalFloors} onChange={(e) => setVillaTotalFloors(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Villa Private Plot Area (sq. ft.)</label>
+                        <input type="number" value={villaPlotArea} onChange={(e) => setVillaPlotArea(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Villa Private Amenities Checklist</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.625rem' }}>
+                        {VILLA_AMENITIES_OPTIONS.map((item) => {
+                          const selected = villaAmenities.includes(item);
+                          return (
+                            <div
+                              key={item}
+                              onClick={() => toggleVillaAmenity(item)}
+                              style={{
+                                padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
+                                backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                                border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
+                                color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
+                              }}
+                            >
+                              {selected ? '✓ ' : '+ '}{item}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 )}
 
-                <div>
-                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Soil & Infrastructure Features</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.625rem' }}>
-                    {SOIL_AND_INFRASTRUCTURE.map((item) => {
-                      const selected = selectedSoilAndInfra.includes(item);
-                      return (
-                        <div
-                          key={item}
-                          onClick={() => toggleSoilAndInfra(item)}
-                          style={{
-                            padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
-                            backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
-                            border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
-                            color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
-                          }}
-                        >
-                          {selected ? '✓ ' : '+ '}{item}
+                {/* 3. APARTMENT / FLAT SPECIFIC SPECIFICATIONS */}
+                {(propertyType === 'Apartment' || propertyType === 'Flat') && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#818cf8' }}>Apartment & Unit Details</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total Complex Floors</label>
+                        <input type="number" value={apartmentTotalFloors} onChange={(e) => setApartmentTotalFloors(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Flat Floor Level</label>
+                        <input type="number" value={flatFloorNumber} onChange={(e) => setFlatFloorNumber(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Unit Bedrooms</label>
+                        <input type="number" value={apartmentUnitBedrooms} onChange={(e) => setApartmentUnitBedrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Unit Bathrooms</label>
+                        <input type="number" value={apartmentUnitBathrooms} onChange={(e) => setApartmentUnitBathrooms(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Units per Floor</label>
+                        <input type="number" value={apartmentUnitsPerFloor} onChange={(e) => setApartmentUnitsPerFloor(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Rooms per Floor</label>
+                        <input type="number" value={apartmentRoomsPerFloor} onChange={(e) => setApartmentRoomsPerFloor(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Total Flats in Complex</label>
+                        <input type="number" value={apartmentTotalFlats} onChange={(e) => setApartmentTotalFlats(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Furnished Status</label>
+                        <select value={furnishedStatus} onChange={(e) => setFurnishedStatus(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          {FURNISHED_STATUS_OPTIONS.map((fs) => <option key={fs} value={fs}>{fs}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. PLOTS, LAND, COMMERCIAL SPECIFIC SPECIFICATIONS */}
+                {(propertyType === 'Residential Plot' || propertyType === 'Commercial Plot' || propertyType === 'Commercial Building' || propertyType === 'Commercial') && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#818cf8' }}>Plot & Commercial Features</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Access Road Classification</label>
+                        <select value={accessRoadType} onChange={(e) => setAccessRoadType(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          {ACCESS_ROAD_TYPES.map((rt) => <option key={rt} value={rt}>{rt}</option>)}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Plot Facing Direction</label>
+                        <select value={plotFacing} onChange={(e) => setPlotFacing(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          {PLOT_FACING_OPTIONS.map((pf) => <option key={pf} value={pf}>{pf}</option>)}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Corner Plot (Dual-Road Access)</label>
+                        <select value={cornerPlotStatus ? 'Yes' : 'No'} onChange={(e) => setCornerPlotStatus(e.target.value === 'Yes')} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          <option value="No">No (Single Side Road)</option>
+                          <option value="Yes">Yes (Corner Plot)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {(propertyType === 'Commercial Plot' || propertyType === 'Commercial Building' || propertyType === 'Commercial') && (
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Commercial Infrastructure & Utility Options</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.625rem' }}>
+                          {COMMERCIAL_PLOT_OPTIONS.map((item) => {
+                            const selected = commercialPlotFeatures.includes(item);
+                            return (
+                              <div
+                                key={item}
+                                onClick={() => toggleCommercialPlotFeature(item)}
+                                style={{
+                                  padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
+                                  backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                                  border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
+                                  color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
+                                }}
+                              >
+                                {selected ? '✓ ' : '+ '}{item}
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
+                      </div>
+                    )}
+
+                    <div>
+                      <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Plot Access & Visibility Factors</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.625rem' }}>
+                        {LAND_COST_FACTORS.map((item) => {
+                          const selected = selectedLandFactors.includes(item);
+                          return (
+                            <div
+                              key={item}
+                              onClick={() => toggleLandFactor(item)}
+                              style={{
+                                padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
+                                backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                                border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
+                                color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
+                              }}
+                            >
+                              {selected ? '✓ ' : '+ '}{item}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* 5. AGRICULTURAL LAND SPECIFICATIONS */}
+                {propertyType === 'Agricultural Land' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#818cf8' }}>Agricultural Land Details</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Agricultural Cropping Intensity</label>
+                        <select value={croppingIntensity} onChange={(e) => setCroppingIntensity(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          {CROPPING_INTENSITY_OPTIONS.map((cio) => <option key={cio} value={cio}>{cio}</option>)}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Crop Fallow Duration (Years)</label>
+                        <input type="number" value={cropFallowDuration} onChange={(e) => setCropFallowDuration(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Irrigation Water Pumps / Borewells Count</label>
+                        <input type="number" value={waterPumpCount} onChange={(e) => setWaterPumpCount(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Solar Power Grid Integration</label>
+                        <select value={solarGridIntegration ? 'Yes' : 'No'} onChange={(e) => setSolarGridIntegration(e.target.value === 'Yes')} className="glass-input" style={{ fontSize: '0.875rem' }}>
+                          <option value="No">No Integration</option>
+                          <option value="Yes">Operational Solar Grid</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Land Cost & Access Factors</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.625rem' }}>
+                        {LAND_COST_FACTORS.map((item) => {
+                          const selected = selectedLandFactors.includes(item);
+                          return (
+                            <div
+                              key={item}
+                              onClick={() => toggleLandFactor(item)}
+                              style={{
+                                padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
+                                backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                                border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
+                                color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
+                              }}
+                            >
+                              {selected ? '✓ ' : '+ '}{item}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem' }}>Soil & Infrastructure Checklist</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.625rem' }}>
+                        {SOIL_AND_INFRASTRUCTURE.map((item) => {
+                          const selected = selectedSoilAndInfra.includes(item);
+                          return (
+                            <div
+                              key={item}
+                              onClick={() => toggleSoilAndInfra(item)}
+                              style={{
+                                padding: '0.625rem 0.875rem', borderRadius: '0.75rem', cursor: 'pointer',
+                                backgroundColor: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
+                                border: selected ? '1px solid #6366f1' : '1px solid var(--card-border)',
+                                color: selected ? '#818cf8' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700,
+                              }}
+                            >
+                              {selected ? '✓ ' : '+ '}{item}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
