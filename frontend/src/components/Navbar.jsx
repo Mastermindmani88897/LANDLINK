@@ -157,9 +157,6 @@ export default function Navbar() {
 
               {isAuthenticated ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-                  <Link to="/favorites" style={{ color: '#fb7185', display: 'flex', alignItems: 'center', padding: '0.375rem' }} title="My Favorites">
-                    <Heart size={18} className="fill-rose-500/20 text-rose-400" />
-                  </Link>
                   <Link to="/my-listings" style={{ color: '#818cf8', display: 'flex', alignItems: 'center', padding: '0.375rem' }} title="My Listings">
                     <Building2 size={18} />
                   </Link>
