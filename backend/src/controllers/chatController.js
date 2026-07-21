@@ -1,80 +1,133 @@
-const ChatMessage = require('../models/ChatMessage');
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
 const User = require('../models/User');
 const Property = require('../models/Property');
 
-const createError = (msg, code) => { const e = new Error(msg); e.statusCode = code; return e; };
-
-// GET /api/v1/chat/threads
-const getThreads = async (req, res) => {
-  const userId = req.user._id;
-  const messages = await ChatMessage.find({
-    $or: [{ sender_id: userId }, { receiver_id: userId }],
-  }).sort({ created_at: -1 });
-
-  const seenUsers = new Set();
-  const threads = [];
-
-  for (const msg of messages) {
-    const targetId = msg.sender_id.toString() === userId.toString() ? msg.receiver_id : msg.sender_id;
-    if (seenUsers.has(targetId.toString())) continue;
-    seenUsers.add(targetId.toString());
-
-    const targetUser = await User.findById(targetId).select('-password_hash');
-    if (!targetUser) continue;
-
-    const prop = msg.property_id ? await Property.findById(msg.property_id).select('title expected_price') : null;
-    const json = msg.toJSON();
-
-    threads.push({
-      target_user: { id: targetUser._id.toString(), full_name: targetUser.full_name, email: targetUser.email, profile_image_url: targetUser.profile_image_url },
-      last_message: { id: json.id, message_text: json.message_text, image_url: json.image_url, read_receipt: json.read_receipt, created_at: json.created_at, sender_id: json.sender_id },
-      property: prop ? { id: prop._id.toString(), title: prop.title, expected_price: prop.expected_price } : null,
-    });
-  }
-
-  res.json(threads);
+const createError = (message, statusCode) => {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  return err;
 };
 
-// GET /api/v1/chat/history/:targetUserId
-const getChatHistory = async (req, res) => {
-  const userId = req.user._id;
-  const { targetUserId } = req.params;
+// POST /api/v1/chat/conversations  (Create or find conversation with target seller/user)
+const createOrGetConversation = async (req, res) => {
+  const { recipient_id, property_id } = req.body;
+  if (!recipient_id) throw createError('Recipient user ID is required', 400);
 
-  const messages = await ChatMessage.find({
-    $or: [
-      { sender_id: userId, receiver_id: targetUserId },
-      { sender_id: targetUserId, receiver_id: userId },
-    ],
-  }).sort({ created_at: 1 });
-
-  // Mark unread messages from target as read
-  const unread = messages.filter((m) => m.receiver_id.toString() === userId.toString() && !m.read_receipt);
-  if (unread.length) {
-    await ChatMessage.updateMany(
-      { _id: { $in: unread.map((m) => m._id) } },
-      { $set: { read_receipt: true } }
-    );
+  if (recipient_id.toString() === req.user._id.toString()) {
+    throw createError('You cannot start a conversation with yourself', 400);
   }
 
-  res.json(messages.map((m) => m.toJSON()));
-};
-
-// POST /api/v1/chat/
-const sendMessage = async (req, res) => {
-  const { receiver_id, property_id, message_text, image_url } = req.body;
-  const receiver = await User.findById(receiver_id);
-  if (!receiver) throw createError('Recipient user not found', 404);
-
-  const msg = await ChatMessage.create({
-    sender_id: req.user._id,
-    receiver_id,
-    property_id: property_id || null,
-    message_text,
-    image_url: image_url || null,
-    read_receipt: false,
+  // Find existing conversation between these 2 users
+  let conv = await Conversation.findOne({
+    participants: { $all: [req.user._id, recipient_id] },
   });
 
-  res.status(201).json(msg.toJSON());
+  if (!conv) {
+    conv = await Conversation.create({
+      participants: [req.user._id, recipient_id],
+      property_id: property_id || null,
+      last_message: 'Conversation started',
+      last_message_at: new Date(),
+    });
+  } else if (property_id && !conv.property_id) {
+    conv.property_id = property_id;
+    await conv.save();
+  }
+
+  const populated = await Conversation.findById(conv._id)
+    .populate('participants', '-password_hash')
+    .populate('property_id');
+
+  res.json(populated.toJSON ? populated.toJSON() : populated);
 };
 
-module.exports = { getThreads, getChatHistory, sendMessage };
+// GET /api/v1/chat/conversations  (Get all conversations for current user)
+const getMyConversations = async (req, res) => {
+  const conversations = await Conversation.find({
+    participants: req.user._id,
+  })
+    .sort({ last_message_at: -1 })
+    .populate('participants', '-password_hash')
+    .populate('property_id');
+
+  res.json(conversations);
+};
+
+// GET /api/v1/chat/conversations/:id/messages  (Get message history for conversation)
+const getConversationMessages = async (req, res) => {
+  const conv = await Conversation.findById(req.params.id);
+  if (!conv) throw createError('Conversation not found', 404);
+
+  // Security check: verify user is participant
+  const isParticipant = conv.participants.some(
+    (p) => p.toString() === req.user._id.toString()
+  );
+  if (!isParticipant) throw createError('Access denied to this conversation', 403);
+
+  // Mark messages as read for this receiver
+  await Message.updateMany(
+    { conversation_id: req.params.id, receiver: req.user._id, is_read: false },
+    { is_read: true }
+  );
+
+  // Reset unread count for current user
+  if (conv.unread_count && conv.unread_count.has(req.user._id.toString())) {
+    conv.unread_count.set(req.user._id.toString(), 0);
+    await conv.save();
+  }
+
+  const messages = await Message.find({ conversation_id: req.params.id })
+    .sort({ created_at: 1 })
+    .populate('sender', 'full_name email profile_image_url')
+    .populate('receiver', 'full_name email profile_image_url');
+
+  res.json(messages);
+};
+
+// POST /api/v1/chat/conversations/:id/messages  (Send message via REST API)
+const sendMessage = async (req, res) => {
+  const { text } = req.body;
+  if (!text || !text.trim()) throw createError('Message text cannot be empty', 400);
+
+  const conv = await Conversation.findById(req.params.id);
+  if (!conv) throw createError('Conversation not found', 404);
+
+  const isParticipant = conv.participants.some(
+    (p) => p.toString() === req.user._id.toString()
+  );
+  if (!isParticipant) throw createError('Access denied to this conversation', 403);
+
+  const recipientId = conv.participants.find(
+    (p) => p.toString() !== req.user._id.toString()
+  );
+
+  const msg = await Message.create({
+    conversation_id: conv._id,
+    sender: req.user._id,
+    receiver: recipientId,
+    text: text.trim(),
+    created_at: new Date(),
+  });
+
+  // Update conversation last_message & unread counter
+  conv.last_message = text.trim();
+  conv.last_message_at = new Date();
+
+  const currentUnread = conv.unread_count.get(recipientId.toString()) || 0;
+  conv.unread_count.set(recipientId.toString(), currentUnread + 1);
+  await conv.save();
+
+  const populatedMsg = await Message.findById(msg._id)
+    .populate('sender', 'full_name email profile_image_url')
+    .populate('receiver', 'full_name email profile_image_url');
+
+  res.status(201).json(populatedMsg);
+};
+
+module.exports = {
+  createOrGetConversation,
+  getMyConversations,
+  getConversationMessages,
+  sendMessage,
+};

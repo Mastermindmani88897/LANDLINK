@@ -9,14 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.27.0",
-    "zustand": "^5.0.1",
+    "chart.js": "^4.4.5",
     "framer-motion": "^11.11.11",
     "lucide-react": "^0.453.0",
-    "chart.js": "^4.4.5",
-    "react-chartjs-2": "^5.2.0"
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0",
+    "socket.io-client": "^4.8.3",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.2",

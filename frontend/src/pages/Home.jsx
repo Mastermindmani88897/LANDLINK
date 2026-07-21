@@ -8,6 +8,8 @@ import {
   MapPin, HelpCircle, DollarSign, PlusCircle
 } from 'lucide-react';
 
+import PropertyImage from '../components/PropertyImage.jsx';
+
 export default function Home() {
   const navigate = useNavigate();
   const { isAuthenticated, openAuthModal, language } = useAppStore();
@@ -159,7 +161,7 @@ export default function Home() {
               <div key={prop.id} onClick={(e) => handleGuardedAction(e, `/properties/${prop.id}`)}>
                 <div className="glass-panel" style={{ position: 'relative', display: 'flex', flexDirection: 'column', borderRadius: '1.25rem', overflow: 'hidden', backgroundColor: 'rgba(13,9,37,0.4)', cursor: 'pointer', transition: 'transform 0.2s', border: '1px solid rgba(255,255,255,0.08)' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.01)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
                   <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', backgroundColor: '#0f172a' }}>
-                    <img src={prop.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&fit=crop'} alt={prop.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <PropertyImage src={prop.images?.[0]} alt={prop.title} />
                     <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', padding: '0.375rem 0.625rem', borderRadius: '0.5rem', backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', fontSize: '10px', fontWeight: 800, color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                       <Brain size={11} /> AI Score: {(prop.overall_condition_score || 9.2).toFixed(1)}/10
                     </div>

@@ -92,6 +92,7 @@ export default function Navbar() {
     { name: t.navBrowse, path: '/properties', icon: ShoppingBag },
     { name: t.navSell, path: '/sell', icon: PlusCircle },
     { name: 'Favorites', path: '/favorites', icon: Heart },
+    { name: 'Messages', path: '/messages', icon: MessageSquare },
     { name: 'My Profile', path: '/profile', icon: User },
   ];
 

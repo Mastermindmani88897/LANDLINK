@@ -10,6 +10,8 @@ import {
 } from '../utils/propertyConstants';
 import { SlidersHorizontal, MapPin, Brain, ShoppingBag, Home, Compass, Sprout, Zap, Layers, Building2 } from 'lucide-react';
 
+import PropertyImage from '../components/PropertyImage.jsx';
+
 export default function Properties() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -453,7 +455,7 @@ export default function Properties() {
               {properties.map((prop) => (
                 <div key={prop.id} onMouseEnter={() => setSelectedPropId(prop.id)} className="glass-panel" style={{ position: 'relative', display: 'flex', flexDirection: 'row', borderRadius: '1rem', overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.25)', transition: 'all 0.2s', borderColor: selectedPropId === prop.id ? 'rgba(99,102,241,0.45)' : undefined }}>
                   <div style={{ width: '40%', aspectRatio: '16/9', position: 'relative', backgroundColor: '#0f172a', overflow: 'hidden', flexShrink: 0 }}>
-                    <img src={prop.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&fit=crop'} alt={prop.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <PropertyImage src={prop.images?.[0]} alt={prop.title} />
                     <div style={{ position: 'absolute', top: '0.5rem', left: '0.5rem', padding: '0.125rem 0.375rem', borderRadius: '0.25rem', backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', fontSize: '8px', fontWeight: 800, color: '#34d399' }}>
                       AI Score: {(prop.overall_condition_score || 9.2).toFixed(1)}/10
                     </div>

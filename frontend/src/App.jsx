@@ -11,6 +11,7 @@ import Settings from './pages/Settings.jsx';
 import Profile from './pages/Profile.jsx';
 import MyListings from './pages/MyListings.jsx';
 import Favorites from './pages/Favorites.jsx';
+import Chat from './pages/Chat.jsx';
 import AdminLogin from './pages/AdminLogin.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import AdminProtectedRoute from './components/AdminProtectedRoute.jsx';
@@ -31,6 +32,8 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-listings" element={<MyListings />} />
             <Route path="/favorites" element={<Favorites />} />
+            <Route path="/messages" element={<Chat />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/settings" element={<Settings />} />
 
             {/* Admin Portal Routes */}

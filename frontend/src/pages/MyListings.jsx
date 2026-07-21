@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAppStore } from '../store/store';
 import { Building2, Eye, Edit, Trash2, Plus, MapPin, Calendar, CheckCircle, AlertTriangle } from 'lucide-react';
+import PropertyImage from '../components/PropertyImage.jsx';
 
 export default function MyListings() {
   const navigate = useNavigate();
@@ -145,7 +146,7 @@ export default function MyListings() {
             return (
               <div key={propId} className="glass-panel" style={{ borderRadius: '1.25rem', overflow: 'hidden', backgroundColor: 'rgba(13,9,37,0.5)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ position: 'relative', height: '13rem', width: '100%' }}>
-                  <img src={imageUrl} alt={prop.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <PropertyImage src={prop.images?.[0]} alt={prop.title} />
                   
                   <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', gap: '0.375rem' }}>
                     <span style={{ padding: '0.25rem 0.625rem', borderRadius: '0.5rem', backgroundColor: 'rgba(79,70,229,0.9)', fontSize: '11px', fontWeight: 800, color: 'white', textTransform: 'uppercase' }}>

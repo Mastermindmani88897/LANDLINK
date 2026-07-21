@@ -6,6 +6,7 @@ import {
   User, Mail, Phone, MapPin, Calendar, Building2, Heart, Edit, Lock, LogOut,
   CheckCircle, ShieldCheck, Camera, Sparkles, X, Activity, ArrowRight, Eye, Trash2
 } from 'lucide-react';
+import PropertyImage from '../components/PropertyImage.jsx';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -291,7 +292,9 @@ export default function Profile() {
               const pId = p.id || p._id;
               return (
                 <div key={pId} style={{ padding: '1rem', borderRadius: '1rem', backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '0.875rem', alignItems: 'center' }}>
-                  <img src={p.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&fit=crop'} alt={p.title} style={{ height: '4rem', width: '4rem', borderRadius: '0.75rem', objectFit: 'cover', flexShrink: 0 }} />
+                  <div style={{ height: '4rem', width: '4rem', borderRadius: '0.75rem', overflow: 'hidden', flexShrink: 0 }}>
+                    <PropertyImage src={p.images?.[0]} alt={p.title} iconSize={16} fontSize="9px" />
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
                     <div style={{ fontSize: '0.75rem', color: '#818cf8', fontWeight: 700, marginTop: '0.125rem' }}>INR {formatPrice(p.expected_price)}</div>

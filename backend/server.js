@@ -58,15 +58,20 @@ app.use((err, req, res, next) => {
   });
 });
 
+const http = require('http');
+const { initSocket } = require('./src/socket');
+
 const { connectDatabase } = require('./src/config/db');
 
 // ─── Database Connection + Server Start ──────────────────────────────────────
 const PORT = process.env.PORT || 5000;
+const server = http.createServer(app);
+initSocket(server);
 
 async function startServer() {
   await connectDatabase();
-  app.listen(PORT, () => {
-    console.log(`🚀 LandLink AI Server running on port ${PORT}`);
+  server.listen(PORT, () => {
+    console.log(`🚀 LandLink AI Server & Socket.IO running on port ${PORT}`);
   });
 }
 

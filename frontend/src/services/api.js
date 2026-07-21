@@ -224,4 +224,27 @@ export const api = {
   async getAdminUsers() {
     return apiFetch('/admin/users');
   },
+
+  // ─── REAL-TIME CHAT & MESSAGING SERVICES ────────────────────────────────────
+  async createOrGetConversation(recipientId, propertyId = null) {
+    return apiFetch('/chat/conversations', {
+      method: 'POST',
+      body: JSON.stringify({ recipient_id: recipientId, property_id: propertyId }),
+    });
+  },
+
+  async getMyConversations() {
+    return apiFetch('/chat/conversations');
+  },
+
+  async getConversationMessages(conversationId) {
+    return apiFetch(`/chat/conversations/${conversationId}/messages`);
+  },
+
+  async sendMessageRest(conversationId, text) {
+    return apiFetch(`/chat/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    });
+  },
 };

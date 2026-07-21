@@ -7,8 +7,9 @@ import {
   Phone, MessageSquare, Calendar, Star, ShieldCheck,
   ArrowLeft, Sparkles, TrendingUp, Send, ChevronLeft, ChevronRight,
   Bed, Bath, Car, Maximize2, Home, Zap, Droplets, School, Stethoscope,
-  CheckCircle, AlertTriangle, X, Info, BarChart2, Eye, User, Edit, Trash2, Mail, Copy
+  CheckCircle, AlertTriangle, X, Info, BarChart2, Eye, User, Edit, Trash2, Mail, Copy, Video
 } from 'lucide-react';
+import PropertyImage from '../components/PropertyImage.jsx';
 
 function ScoreBar({ label, score, max = 10, color = '#6366f1' }) {
   const pct = Math.round((score / max) * 100);
@@ -296,6 +297,25 @@ export default function PropertyDetail() {
     setTimeout(() => setCopiedPhone(false), 2000);
   };
 
+  const handleStartChatWithSeller = async (callMode = false) => {
+    if (!isAuthenticated) {
+      alert('Please sign in to message or call the seller');
+      return;
+    }
+    const targetSellerId = sellerObj._id || sellerObj.id || property.seller_id || property.seller;
+    if (!targetSellerId) {
+      alert('Seller information unavailable');
+      return;
+    }
+    try {
+      const conv = await api.createOrGetConversation(targetSellerId, propertyId);
+      const convId = conv._id || conv.id;
+      navigate(`/messages?convId=${convId}`);
+    } catch (err) {
+      alert(err.message || 'Failed to connect with seller');
+    }
+  };
+
   const tabs = [
     { id: 'overview', label: 'Overview & Details' },
     { id: 'ai', label: 'AI Condition & Valuation' },
@@ -332,7 +352,7 @@ export default function PropertyDetail() {
       {/* Hero Photo Carousel */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6" style={{ marginTop: '1rem' }}>
         <div className="glass-panel" style={{ position: 'relative', borderRadius: '1.5rem', overflow: 'hidden', backgroundColor: '#090518', width: '100%', aspectRatio: '16/7' }}>
-          <img src={property.images?.[currentImage]?.image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&fit=crop'} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <PropertyImage src={property.images?.[currentImage]} alt={property.title} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(3,0,20,0.85), transparent)' }} />
           
           {property.images.length > 1 && (
@@ -731,16 +751,12 @@ export default function PropertyDetail() {
 
                       {/* Action Buttons */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
-                        {sellerPhone && (
-                          <a href={`tel:${sellerPhone}`} className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', textDecoration: 'none', fontWeight: 700, borderRadius: '0.75rem' }}>
-                            <Phone size={15} /> Call Seller
-                          </a>
-                        )}
-                        {sellerEmail && (
-                          <a href={`mailto:${sellerEmail}`} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', textDecoration: 'none', fontWeight: 700, borderRadius: '0.75rem', borderColor: '#818cf8', color: '#818cf8' }}>
-                            <Mail size={15} /> Email Seller
-                          </a>
-                        )}
+                        <button onClick={() => handleStartChatWithSeller(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', fontWeight: 700, borderRadius: '0.75rem', border: 'none', cursor: 'pointer' }}>
+                          <Phone size={15} /> Call Seller
+                        </button>
+                        <button onClick={() => handleStartChatWithSeller(false)} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', fontWeight: 700, borderRadius: '0.75rem', borderColor: '#818cf8', color: '#818cf8', cursor: 'pointer' }}>
+                          <MessageSquare size={15} /> Message Seller
+                        </button>
                         {sellerPhone && (
                           <button onClick={handleCopyPhone} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', fontSize: '0.8125rem', fontWeight: 700, borderRadius: '0.75rem', backgroundColor: copiedPhone ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.05)', border: copiedPhone ? '1px solid rgba(52,211,153,0.4)' : '1px solid rgba(255,255,255,0.12)', color: copiedPhone ? '#34d399' : '#e2e8f0', cursor: 'pointer', transition: 'all 0.2s' }}>
                             {copiedPhone ? <CheckCircle size={15} /> : <Copy size={15} />}
@@ -748,11 +764,6 @@ export default function PropertyDetail() {
                           </button>
                         )}
                       </div>
-
-                      {/* Instant Chat button */}
-                      <button onClick={() => setChatOpen(true)} className="btn-secondary" style={{ width: '100%', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem', marginTop: '0.25rem', borderRadius: '0.75rem' }}>
-                        <MessageSquare size={15} style={{ color: '#38bdf8' }} /> Chat with Seller
-                      </button>
                     </div>
                   )}
                 </div>

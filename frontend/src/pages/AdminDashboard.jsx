@@ -6,6 +6,7 @@ import {
   ShieldCheck, Users, Building2, Calendar, DollarSign, AlertTriangle,
   CheckCircle, XCircle, Trash2, Eye, RefreshCw, LogOut, Filter, MapPin, Search
 } from 'lucide-react';
+import PropertyImage from '../components/PropertyImage.jsx';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -224,7 +225,9 @@ export default function AdminDashboard() {
                       <div key={pId} style={{ padding: '1.25rem', borderRadius: '1rem', backgroundColor: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
                         
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, minWidth: '240px' }}>
-                          <img src={prop.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&fit=crop'} alt={prop.title} style={{ height: '4.5rem', width: '4.5rem', borderRadius: '0.75rem', objectFit: 'cover', flexShrink: 0 }} />
+                          <div style={{ height: '4.5rem', width: '4.5rem', borderRadius: '0.75rem', overflow: 'hidden', flexShrink: 0 }}>
+                            <PropertyImage src={prop.images?.[0]} alt={prop.title} iconSize={16} fontSize="9px" />
+                          </div>
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#f8fafc' }}>{prop.title}</h4>
