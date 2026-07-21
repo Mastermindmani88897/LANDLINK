@@ -11,11 +11,16 @@ const chatRoutes = require('./src/routes/chatRoutes');
 
 const app = express();
 
-// ─── CORS Configuration (Supports any local port e.g. 5173, 5174) ─────────────
+// ─── CORS Configuration ───────────────────────────────────────────────────────
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+    const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map(u => u.trim()) : [];
+    if (
+      origin.startsWith('http://127.0.0.1') ||
+      origin.endsWith('.vercel.app') ||
+      allowedOrigins.includes(origin)
+    ) {
       return callback(null, true);
     }
     return callback(null, true);
@@ -59,7 +64,7 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   await connectDatabase();
   app.listen(PORT, () => {
-    console.log(`🚀 LandLink AI Server running on http://localhost:${PORT}`);
+    console.log(`🚀 LandLink AI Server running on port ${PORT}`);
   });
 }
 

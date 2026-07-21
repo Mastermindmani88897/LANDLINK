@@ -10,8 +10,8 @@ async function connectDatabase() {
   if (MONGODB_URI) {
     try {
       await mongoose.connect(MONGODB_URI, {
-        serverSelectionTimeoutMS: 4000,
-        connectTimeoutMS: 4000,
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
       });
       console.log('✅ Connected to MongoDB Atlas successfully!');
       await seedInitialData();

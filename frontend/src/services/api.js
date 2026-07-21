@@ -1,6 +1,15 @@
 import { useAppStore } from '../store/store';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1').replace(/\/$/, '');
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+  if (envUrl) {
+    const trimmed = envUrl.replace(/\/$/, '');
+    return trimmed.endsWith('/api/v1') ? trimmed : `${trimmed}/api/v1`;
+  }
+  return '/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 async function apiFetch(path, options = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('landlink_token') : null;
