@@ -89,9 +89,12 @@ export default function PropertyDetail() {
   const [copiedPhone, setCopiedPhone] = useState(false);
   const chatEndRef = useRef(null);
 
-  const isOwner = user && property && (
-    (property.seller_id?.id || property.seller_id) === (user.id || user._id)
-  );
+  const ownerId = property?.seller_id?._id || property?.seller_id?.id || property?.seller_id || property?.seller?._id || property?.seller;
+  const userId = user?._id || user?.id;
+  const isOwner = Boolean(user && ownerId && String(ownerId) === String(userId));
+  const isAdmin = Boolean(user && user.role === 'admin');
+  const canEdit = isOwner || isAdmin;
+  const canDelete = isOwner || isAdmin;
 
   useEffect(() => {
     if (!propertyId) return;
@@ -153,8 +156,12 @@ export default function PropertyDetail() {
     if (!window.confirm('Are you sure you want to delete this property listing?')) return;
     try {
       await api.deleteProperty(propertyId);
-      alert('Listing deleted successfully.');
-      navigate('/dashboard');
+      alert('Property deleted successfully.');
+      if (isAdmin) {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/my-listings');
+      }
     } catch (err) {
       alert(err.message || 'Failed to delete property');
     }
@@ -306,14 +313,18 @@ export default function PropertyDetail() {
           <span style={{ color: '#cbd5e1' }}>{property.title}</span>
         </nav>
 
-        {isOwner && (
+        {(canEdit || canDelete) && (
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button onClick={() => setIsEditModalOpen(true)} className="btn-secondary" style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.75rem', borderColor: '#818cf8', color: '#818cf8' }}>
-              <Edit size={14} /> Edit Listing
-            </button>
-            <button onClick={handleDeleteProperty} style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.75rem', borderRadius: '0.75rem', backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fb7185', cursor: 'pointer', fontWeight: 600 }}>
-              <Trash2 size={14} /> Delete
-            </button>
+            {canEdit && (
+              <button onClick={() => navigate(`/properties/${propertyId}/edit`)} className="btn-secondary" style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.75rem', borderColor: '#818cf8', color: '#818cf8' }}>
+                <Edit size={14} /> Edit Listing
+              </button>
+            )}
+            {canDelete && (
+              <button onClick={handleDeleteProperty} style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.75rem', borderRadius: '0.75rem', backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fb7185', cursor: 'pointer', fontWeight: 600 }}>
+                <Trash2 size={14} /> {isAdmin && !isOwner ? 'Admin Delete' : 'Delete'}
+              </button>
+            )}
           </div>
         )}
       </div>

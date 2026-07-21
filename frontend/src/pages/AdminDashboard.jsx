@@ -65,8 +65,8 @@ export default function AdminDashboard() {
     try {
       await api.deleteAdminProperty(propId);
       setProperties((prev) => prev.filter((p) => (p.id || p._id) !== propId));
-      setNoticeMsg('Listing deleted successfully by admin.');
-      setTimeout(() => setNoticeMsg(''), 3000);
+      setNoticeMsg('Property deleted successfully.');
+      setTimeout(() => setNoticeMsg(''), 4000);
       loadAdminData();
     } catch (err) {
       alert(err.message || 'Failed to delete listing');

@@ -287,6 +287,21 @@ const createProperty = async (req, res) => {
 
   const age = property_age || house_age || (year_built ? new Date().getFullYear() - year_built : null);
   const aiTags = aiService.generateSmartTags(title, description || '', amenities);
+  const combinedTags = Array.from(new Set([...(tags || []), ...aiTags]));
+
+  const imagesData = (images || []).map((img) => {
+    const url = typeof img === 'string' ? img : (img.image_url || img);
+    return {
+      image_url: url,
+      analyzed_cracks: false,
+      analyzed_leakage: false,
+      analyzed_paint: 'Good',
+      analyzed_flooring: 'Good',
+      analyzed_garden: 'N/A',
+      analyzed_roof: 'Good',
+      condition_score: conditionScore,
+    };
+  });
 
   const isVillaType = property_type === 'Villa' || property_type === 'Flat';
 
@@ -408,9 +423,11 @@ const updateProperty = async (req, res) => {
   const property = await Property.findById(req.params.id);
   if (!property) throw createError('Property not found', 404);
 
-  // Check ownership
-  const ownerId = property.seller_id?.toString() || property.seller?.toString();
-  if (ownerId !== req.user._id.toString()) {
+  // Check ownership or admin role
+  const ownerId = property.seller_id?.toString() || property.seller?.toString() || property.seller?._id?.toString();
+  const isOwner = req.user && ownerId === req.user._id.toString();
+  const isAdmin = req.user && req.user.role === 'admin';
+  if (!isOwner && !isAdmin) {
     throw createError('You are not authorized to edit this listing', 403);
   }
 
@@ -513,9 +530,11 @@ const deleteProperty = async (req, res) => {
   const property = await Property.findById(req.params.id);
   if (!property) throw createError('Property not found', 404);
 
-  // Check ownership
-  const ownerId = property.seller_id?.toString() || property.seller?.toString();
-  if (ownerId !== req.user._id.toString()) {
+  // Check ownership or admin role
+  const ownerId = property.seller_id?.toString() || property.seller?.toString() || property.seller?._id?.toString();
+  const isOwner = req.user && ownerId === req.user._id.toString();
+  const isAdmin = req.user && req.user.role === 'admin';
+  if (!isOwner && !isAdmin) {
     throw createError('You are not authorized to delete this listing', 403);
   }
 
