@@ -274,79 +274,89 @@ export default function Sell() {
     }
   };
 
+  const formData = {
+    id: editId || 'preview-id',
+    _id: editId || 'preview-id',
+    title: title || `${propertyType} in ${city || 'Prime Area'}`,
+    property_type: propertyType,
+    house_type: propertyType === 'House' ? houseType : null,
+    expected_price: parseFloat(expectedPrice || 100000),
+    price: parseFloat(expectedPrice || 100000),
+    min_expected_price: minExpectedPrice ? parseFloat(minExpectedPrice) : null,
+    max_expected_price: maxExpectedPrice ? parseFloat(maxExpectedPrice) : null,
+    area_sqft: parseFloat(areaSqft || 1000),
+    area_unit: areaUnit,
+    bedrooms: parseInt(bedrooms || 0),
+    bathrooms: parseInt(bathrooms || 0),
+    floors: parseInt(floors || 1),
+    parking: parseInt(parking || 0),
+    address,
+    city: city || 'Mumbai',
+    state,
+    description,
+    reason_for_selling: reasonForSelling,
+    contact_number: sellerPhone,
+    contact_email: sellerEmail,
+
+    // House Specific
+    house_bedrooms: parseInt(houseBedrooms || 0),
+    house_bathrooms: parseInt(houseBathrooms || 0),
+    house_age: parseFloat(houseAge || 0),
+    house_total_rooms: parseInt(houseTotalRooms || 0),
+    house_total_floors: parseInt(houseTotalFloors || 1),
+    house_furnishing: furnishedStatus,
+
+    // Villa Specific
+    villa_bedrooms: parseInt(villaBedrooms || 0),
+    villa_bathrooms: parseInt(villaBathrooms || 0),
+    villa_total_floors: parseInt(villaTotalFloors || 1),
+    villa_plot_area: parseFloat(villaPlotArea || 0),
+    villa_amenities: villaAmenities,
+    villa_features: villaAmenities,
+
+    // Apartment Specific
+    apartment_total_floors: parseInt(apartmentTotalFloors || 1),
+    apartment_rooms_per_floor: parseInt(apartmentRoomsPerFloor || 0),
+    apartment_unit_bedrooms: parseInt(apartmentUnitBedrooms || 0),
+    apartment_unit_bathrooms: parseInt(apartmentUnitBathrooms || 0),
+    apartment_units_per_floor: parseInt(apartmentUnitsPerFloor || 1),
+    apartment_total_flats: parseInt(apartmentTotalFlats || 0),
+    flat_floor_number: parseInt(flatFloorNumber || 1),
+
+    // Plots / Land / Access Road / Utilities
+    access_road_type: accessRoadType,
+    corner_plot_status: Boolean(cornerPlotStatus),
+    plot_facing: plotFacing,
+    furnished_status: furnishedStatus,
+
+    // Agricultural
+    cropping_intensity: croppingIntensity,
+    crop_fallow_duration: parseFloat(cropFallowDuration || 0),
+    water_pump_count: parseInt(waterPumpCount || 0),
+    solar_grid_integration: Boolean(solarGridIntegration),
+    agricultural_land_features: selectedSoilAndInfra,
+
+    land_factors: selectedLandFactors,
+    soil_and_infrastructure: selectedSoilAndInfra,
+    commercial_plot_features: commercialPlotFeatures,
+    image_urls: imageUrls,
+    images: imageUrls.map((url) => (typeof url === 'string' ? { image_url: url } : url)),
+    status: 'approved',
+    is_verified: true,
+    seller_type: 'owner',
+  };
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg('');
 
     try {
-      const payload = {
-        title: title || `${propertyType} in ${city || 'Prime Area'}`,
-        property_type: propertyType,
-        house_type: propertyType === 'House' ? houseType : null,
-        expected_price: parseFloat(expectedPrice || 100000),
-        min_expected_price: minExpectedPrice ? parseFloat(minExpectedPrice) : null,
-        max_expected_price: maxExpectedPrice ? parseFloat(maxExpectedPrice) : null,
-        area_sqft: parseFloat(areaSqft || 1000),
-        area_unit: areaUnit,
-        bedrooms: parseInt(bedrooms || 0),
-        bathrooms: parseInt(bathrooms || 0),
-        floors: parseInt(floors || 1),
-        parking: parseInt(parking || 0),
-        address,
-        city,
-        state,
-        description,
-        reason_for_selling: reasonForSelling,
-        contact_number: sellerPhone,
-        contact_email: sellerEmail,
-        land_factors: selectedLandFactors,
-        soil_and_infrastructure: selectedSoilAndInfra,
-        commercial_plot_features: commercialPlotFeatures,
-        villa_amenities: villaAmenities,
-        image_urls: imageUrls,
-        status: 'approved',
-
-        // House Specific
-        house_bedrooms: parseInt(houseBedrooms || 0),
-        house_bathrooms: parseInt(houseBathrooms || 0),
-        house_age: parseFloat(houseAge || 0),
-        house_total_rooms: parseInt(houseTotalRooms || 0),
-        house_total_floors: parseInt(houseTotalFloors || 1),
-
-        // Villa Specific
-        villa_bedrooms: parseInt(villaBedrooms || 0),
-        villa_bathrooms: parseInt(villaBathrooms || 0),
-        villa_total_floors: parseInt(villaTotalFloors || 1),
-        villa_plot_area: parseFloat(villaPlotArea || 0),
-
-        // Apartment Specific
-        apartment_total_floors: parseInt(apartmentTotalFloors || 1),
-        apartment_rooms_per_floor: parseInt(apartmentRoomsPerFloor || 0),
-        apartment_unit_bedrooms: parseInt(apartmentUnitBedrooms || 0),
-        apartment_unit_bathrooms: parseInt(apartmentUnitBathrooms || 0),
-        apartment_units_per_floor: parseInt(apartmentUnitsPerFloor || 1),
-        apartment_total_flats: parseInt(apartmentTotalFlats || 0),
-        flat_floor_number: parseInt(flatFloorNumber || 1),
-
-        // Plots / Land / Access Road / Utilities
-        access_road_type: accessRoadType,
-        corner_plot_status: Boolean(cornerPlotStatus),
-        plot_facing: plotFacing,
-        furnished_status: furnishedStatus,
-
-        // Agricultural
-        cropping_intensity: croppingIntensity,
-        crop_fallow_duration: parseFloat(cropFallowDuration || 0),
-        water_pump_count: parseInt(waterPumpCount || 0),
-        solar_grid_integration: Boolean(solarGridIntegration),
-      };
-
       if (isEditMode) {
-        await api.updateProperty(editId, payload);
+        await api.updateProperty(editId, formData);
         navigate(`/properties/${editId}`);
       } else {
-        const created = await api.createProperty(payload);
+        const created = await api.createProperty(formData);
         setCurrentStep(7);
       }
     } catch (err) {
@@ -840,6 +850,180 @@ export default function Sell() {
                     </div>
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {/* Step 4: Photos */}
+            {currentStep === 4 && (
+              <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
+                  Step 4: Upload Property Images
+                </h3>
+
+                <div style={{ border: '2px dashed rgba(99,102,241,0.4)', borderRadius: '1.25rem', padding: '2rem', textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.03)' }}>
+                  <Upload size={32} style={{ color: '#818cf8', margin: '0 auto 0.75rem' }} />
+                  <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+                    Drag & Drop Property Photos Here
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Supports PNG, JPG, WEBP formats</p>
+                  <input type="file" multiple accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} id="photo-upload-input" />
+                  <label htmlFor="photo-upload-input" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer', display: 'inline-block' }}>
+                    Select Files from Device
+                  </label>
+                </div>
+
+                {/* Direct Image URL Add */}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="url"
+                    placeholder="Or paste an image web URL..."
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    className="glass-input"
+                    style={{ fontSize: '0.8125rem' }}
+                  />
+                  <button type="button" onClick={handleAddUrl} className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.8125rem', flexShrink: 0 }}>
+                    Add URL
+                  </button>
+                </div>
+
+                {/* Uploaded Thumbnails Grid */}
+                {imageUrls.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+                    {imageUrls.map((img, i) => (
+                      <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
+                        <img src={img} alt={`Upload ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button type="button" onClick={() => handleRemoveImage(i)} style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'rgba(239,68,68,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Step 5: AI Copywriter & Valuation */}
+            {currentStep === 5 && (
+              <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
+                  Step 5: AI Copywriter & Neural Valuation
+                </h3>
+
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <button type="button" onClick={handleGenerateAiDescription} disabled={isAiDescLoading} className="btn-secondary" style={{ padding: '0.625rem 1.25rem', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#818cf8', borderColor: 'rgba(99,102,241,0.3)' }}>
+                    <Sparkles size={16} /> {isAiDescLoading ? 'Generating...' : 'Auto-Generate AI Copywriting'}
+                  </button>
+                  <button type="button" onClick={handleAiValuation} disabled={isAiPriceLoading} className="btn-secondary" style={{ padding: '0.625rem 1.25rem', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#34d399', borderColor: 'rgba(16,185,129,0.3)' }}>
+                    <DollarSign size={16} /> {isAiPriceLoading ? 'Calculating...' : 'Run AI Price Benchmark'}
+                  </button>
+                </div>
+
+                {aiValuationResult && (
+                  <div style={{ padding: '1rem', borderRadius: '0.875rem', backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399', fontSize: '0.8125rem', fontWeight: 700 }}>
+                    AI Estimated Value: ₹ {Math.round(aiValuationResult.estimated_price).toLocaleString('en-IN')} (High Precision Valuation)
+                  </div>
+                )}
+
+                <div>
+                  <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.375rem' }}>Property Description Narrative</label>
+                  <textarea
+                    rows={5}
+                    placeholder="Describe key highlights, neighborhood features, and interior furnishings..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="glass-input"
+                    style={{ fontSize: '0.875rem', lineHeight: 1.6 }}
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 6: Live Preview */}
+            {currentStep === 6 && (
+              <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
+                  Step 6: Listing Live Preview
+                </h3>
+
+                <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                  This is how your property card and specs will appear to prospective buyers on the LandLink AI marketplace.
+                </p>
+
+                <div style={{ maxWidth: '360px', margin: '0 auto 1.5rem', width: '100%' }}>
+                  <PropertyCard property={formData} />
+                </div>
+
+                {/* Detailed Category-Specific Preview Box */}
+                <div style={{ padding: '1.5rem', borderRadius: '1.25rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#818cf8', marginBottom: '1rem' }}>
+                    {formData.property_type} Summary & Specifications
+                  </h4>
+
+                  {formData.property_type === 'House' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', fontSize: '0.8125rem' }}>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>House Sub-Type:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.house_type}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Bedrooms:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.house_bedrooms}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Bathrooms:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.house_bathrooms}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>House Age:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.house_age} Years</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Total Rooms:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.house_total_rooms}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>House Floors:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.house_total_floors}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Furnishing:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.furnished_status}</strong></div>
+                    </div>
+                  )}
+
+                  {formData.property_type === 'Villa' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', fontSize: '0.8125rem' }}>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Villa Bedrooms:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.villa_bedrooms}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Villa Bathrooms:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.villa_bathrooms}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Villa Stories:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.villa_total_floors}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Plot Area:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.villa_plot_area} sq.ft</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Villa Amenities:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.villa_amenities.join(', ') || 'None selected'}</strong></div>
+                    </div>
+                  )}
+
+                  {(formData.property_type === 'Apartment' || formData.property_type === 'Flat') && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', fontSize: '0.8125rem' }}>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Total Building Floors:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.apartment_total_floors}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Flat Floor Level:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.flat_floor_number}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Unit Bedrooms:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.apartment_unit_bedrooms}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Unit Bathrooms:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.apartment_unit_bathrooms}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Flats per Floor:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.apartment_units_per_floor}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Rooms per Floor:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.apartment_rooms_per_floor}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Total Flats in Complex:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.apartment_total_flats}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Furnishing:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.furnished_status}</strong></div>
+                    </div>
+                  )}
+
+                  {(formData.property_type === 'Residential Plot' || formData.property_type === 'Commercial Plot' || formData.property_type === 'Commercial Building' || formData.property_type === 'Commercial') && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', fontSize: '0.8125rem' }}>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Access Road:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.access_road_type}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Plot Facing:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.plot_facing}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Corner Plot:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.corner_plot_status ? 'Yes (Dual Road Access)' : 'No (Single Road)'}</strong></div>
+                      {formData.commercial_plot_features.length > 0 && (
+                        <div><span style={{ color: 'var(--text-secondary)' }}>Commercial Utilities:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.commercial_plot_features.join(', ')}</strong></div>
+                      )}
+                      {formData.land_factors.length > 0 && (
+                        <div><span style={{ color: 'var(--text-secondary)' }}>Land Factors:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.land_factors.join(', ')}</strong></div>
+                      )}
+                    </div>
+                  )}
+
+                  {formData.property_type === 'Agricultural Land' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', fontSize: '0.8125rem' }}>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Cropping Intensity:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.cropping_intensity}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Crop Fallow Duration:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.crop_fallow_duration} Years</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Water Pumps / Borewells:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.water_pump_count}</strong></div>
+                      <div><span style={{ color: 'var(--text-secondary)' }}>Solar Grid:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.solar_grid_integration ? 'Operational' : 'None'}</strong></div>
+                      {formData.land_factors.length > 0 && (
+                        <div><span style={{ color: 'var(--text-secondary)' }}>Land Cost Factors:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.land_factors.join(', ')}</strong></div>
+                      )}
+                      {formData.soil_and_infrastructure.length > 0 && (
+                        <div><span style={{ color: 'var(--text-secondary)' }}>Soil & Infra:</span> <strong style={{ color: 'var(--text-primary)' }}>{formData.soil_and_infrastructure.join(', ')}</strong></div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </motion.div>
             )}
 
