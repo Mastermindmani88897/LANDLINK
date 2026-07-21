@@ -4,7 +4,7 @@ import { useAppStore } from '../store/store';
 import { api } from '../services/api';
 import { translations } from '../utils/translations';
 import {
-  Building2, User, LogOut, Sun, Moon, Menu, X,
+  Building2, User, LogOut, Sun, Moon, Menu, X, Heart,
   MessageSquare, Sparkles, Globe, ShoppingBag, PlusCircle, Settings as SettingsIcon
 } from 'lucide-react';
 
@@ -91,7 +91,8 @@ export default function Navbar() {
   const navLinks = [
     { name: t.navBrowse, path: '/properties', icon: ShoppingBag },
     { name: t.navSell, path: '/sell', icon: PlusCircle },
-    { name: t.navSettings, path: '/settings', icon: SettingsIcon },
+    { name: 'Favorites', path: '/favorites', icon: Heart },
+    { name: 'My Profile', path: '/profile', icon: User },
   ];
 
   return (
@@ -155,16 +156,19 @@ export default function Navbar() {
               </button>
 
               {isAuthenticated ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <Link to="/dashboard" style={{ color: '#94a3b8', display: 'flex' }}>
-                    <MessageSquare size={18} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                  <Link to="/favorites" style={{ color: '#fb7185', display: 'flex', alignItems: 'center', padding: '0.375rem' }} title="My Favorites">
+                    <Heart size={18} className="fill-rose-500/20 text-rose-400" />
                   </Link>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingLeft: '0.5rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+                  <Link to="/my-listings" style={{ color: '#818cf8', display: 'flex', alignItems: 'center', padding: '0.375rem' }} title="My Listings">
+                    <Building2 size={18} />
+                  </Link>
+                  <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', paddingLeft: '0.5rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ height: '2rem', width: '2rem', borderRadius: '9999px', overflow: 'hidden', border: '1.5px solid #6366f1' }}>
-                      <img src={user?.profile_image_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop'} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={user?.profile_image_url || user?.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop'} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f8fafc', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name}</span>
-                  </div>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f8fafc', maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name || user?.name || 'Profile'}</span>
+                  </Link>
                   <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', fontWeight: 600, color: '#fb7185', border: '1px solid rgba(239,68,68,0.25)', padding: '0.375rem 0.75rem', borderRadius: '0.625rem', background: 'rgba(239,68,68,0.05)', cursor: 'pointer' }}>
                     <LogOut size={13} /> {t.signOut}
                   </button>

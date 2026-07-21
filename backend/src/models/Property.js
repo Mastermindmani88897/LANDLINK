@@ -127,6 +127,7 @@ const propertySchema = new Schema(
     // Status & Moderation
     status: { type: String, enum: ['pending', 'approved', 'rejected', 'sold'], default: 'pending' },
     is_flagged: { type: Boolean, default: false },
+    views: { type: Number, default: 0 },
 
     // AI Scores
     neighborhood_score: { type: Number, default: 0.0 },

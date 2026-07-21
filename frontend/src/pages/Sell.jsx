@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAppStore } from '../store/store';
 import { translations } from '../utils/translations';
@@ -12,6 +12,12 @@ import { Sparkles, DollarSign, Image as ImageIcon, Upload, X, Plus, Phone, Mail,
 
 export default function Sell() {
   const navigate = useNavigate();
+  const { id: paramId } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const editId = paramId || queryParams.get('edit');
+  const isEditMode = Boolean(editId);
+
   const { user, isAuthenticated, language } = useAppStore();
   const t = translations[language] || translations.en;
 
@@ -109,7 +115,50 @@ export default function Sell() {
   const [aiValuationResult, setAiValuationResult] = useState(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState('approved');
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    if (!editId) return;
+    async function loadEditProperty() {
+      try {
+        const prop = await api.getProperty(editId);
+        if (prop.title) setTitle(prop.title);
+        if (prop.property_type) setPropertyType(prop.property_type);
+        if (prop.house_type) setHouseType(prop.house_type);
+        if (prop.area_unit) setAreaUnit(prop.area_unit);
+        if (prop.expected_price) setExpectedPrice(String(prop.expected_price));
+        if (prop.min_expected_price) setMinExpectedPrice(String(prop.min_expected_price));
+        if (prop.max_expected_price) setMaxExpectedPrice(String(prop.max_expected_price));
+        if (prop.area_sqft) setAreaSqft(String(prop.area_sqft));
+        if (prop.min_area_sqft) setMinAreaSqft(String(prop.min_area_sqft));
+        if (prop.max_area_sqft) setMaxAreaSqft(String(prop.max_area_sqft));
+        if (prop.bedrooms) setBedrooms(String(prop.bedrooms));
+        if (prop.bathrooms) setBathrooms(String(prop.bathrooms));
+        if (prop.floors) setFloors(String(prop.floors));
+        if (prop.parking) setParking(String(prop.parking));
+        if (prop.address) setAddress(prop.address);
+        if (prop.city) setCity(prop.city);
+        if (prop.state) setState(prop.state);
+        if (prop.description) setDescription(prop.description);
+        if (prop.reason_for_selling) setReasonForSelling(prop.reason_for_selling);
+        if (prop.contact_number) setSellerPhone(prop.contact_number);
+        if (prop.contact_email) setSellerEmail(prop.contact_email);
+        if (prop.whatsapp_number) setSellerWhatsapp(prop.whatsapp_number);
+        if (prop.status) setStatus(prop.status);
+        if (prop.land_factors?.length) setSelectedLandFactors(prop.land_factors);
+        if (prop.soil_and_infrastructure?.length) setSelectedSoilAndInfra(prop.soil_and_infrastructure);
+        if (prop.commercial_plot_features?.length) setCommercialPlotFeatures(prop.commercial_plot_features);
+        if (prop.images?.length) {
+          setImageUrls(prop.images.map(img => typeof img === 'string' ? img : img.image_url));
+        }
+      } catch (err) {
+        console.error('Failed to load property for editing:', err);
+        setErrorMsg('Failed to load listing details.');
+      }
+    }
+    loadEditProperty();
+  }, [editId]);
 
   const toggleLandFactor = (factor) => {
     setSelectedLandFactors((prev) =>
@@ -299,9 +348,19 @@ export default function Sell() {
         images: imageUrls,
         amenities: ['Gym', 'Swimming Pool', 'Security', 'Power Backup'],
         tags: ['Verified', 'Luxury Listing'],
+        status,
       };
-      const newProp = await api.createProperty(payload);
-      navigate(`/properties/${newProp.id}`);
+
+      if (isEditMode) {
+        await api.updateProperty(editId, payload);
+        alert('Property updated successfully!');
+        navigate(`/properties/${editId}`);
+      } else {
+        const newProp = await api.createProperty(payload);
+        alert('Property listed successfully!');
+        const createdId = newProp.id || newProp._id;
+        navigate(`/properties/${createdId}`);
+      }
     } catch (err) {
       setErrorMsg(err.message || 'Failed to publish property listing');
     } finally {
@@ -314,9 +373,11 @@ export default function Sell() {
       {/* Page Header */}
       <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#818cf8', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
-          <Sparkles size={14} /> Neural Assistant Property Listing
+          <Sparkles size={14} /> {isEditMode ? 'Property Listing Management' : 'Neural Assistant Property Listing'}
         </span>
-        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, marginTop: '0.375rem', letterSpacing: '-0.025em' }}>Post Your Property Asset</h1>
+        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, marginTop: '0.375rem', letterSpacing: '-0.025em' }}>
+          {isEditMode ? 'Edit Property Listing' : 'Post Your Property Asset'}
+        </h1>
         <p style={{ fontSize: '0.875rem', color: '#94a3b8', marginTop: '0.5rem', maxWidth: '36rem', margin: '0.5rem auto 0' }}>
           Upload actual photos of your building or apartment. Include your contact details so buyers can reach out directly.
         </p>

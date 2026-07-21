@@ -98,7 +98,23 @@ export const api = {
     return apiFetch(`/properties/${id}`, { method: 'DELETE' });
   },
 
+  async getMyListings() {
+    return apiFetch('/properties/my-listings');
+  },
+
+  async getFavorites() {
+    return apiFetch('/properties/favorites/all');
+  },
+
   async toggleFavorite(id) {
+    return apiFetch(`/properties/${id}/favorite`, { method: 'POST' });
+  },
+
+  async addFavorite(id) {
+    return apiFetch(`/properties/${id}/favorite`, { method: 'POST' });
+  },
+
+  async removeFavorite(id) {
     return apiFetch(`/properties/${id}/favorite`, { method: 'POST' });
   },
 

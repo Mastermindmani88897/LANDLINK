@@ -12,6 +12,7 @@ const userSchema = new Schema(
     city: { type: String, default: '' },
     state: { type: String, default: '' },
     profile_image_url: { type: String, default: null },
+    favorites: [{ type: Schema.Types.ObjectId, ref: 'Property' }],
   },
   { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );

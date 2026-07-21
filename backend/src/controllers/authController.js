@@ -50,12 +50,23 @@ const googleLogin = async (req, res) => {
 
 // GET /api/v1/auth/me
 const getMe = async (req, res) => {
-  res.json(req.user.toJSON());
+  const Property = require('../models/Property');
+  const Favorite = require('../models/Favorite');
+  
+  const userJson = req.user.toJSON();
+  const listedCount = await Property.countDocuments({
+    $or: [{ seller_id: req.user._id }, { seller: req.user._id }]
+  });
+  const favCount = await Favorite.countDocuments({ user_id: req.user._id });
+  
+  userJson.listed_properties_count = listedCount;
+  userJson.favorites_count = favCount;
+  res.json(userJson);
 };
 
 // PUT /api/v1/auth/me
 const updateMe = async (req, res) => {
-  const { email, full_name, phone_number, whatsapp_number, profile_image_url, password } = req.body;
+  const { email, full_name, phone_number, whatsapp_number, city, state, profile_image_url, password } = req.body;
   const user = await User.findById(req.user._id);
   if (!user) throw createError('User not found', 404);
   if (email && email !== user.email) {
@@ -66,10 +77,20 @@ const updateMe = async (req, res) => {
   if (full_name !== undefined) user.full_name = full_name;
   if (phone_number !== undefined) user.phone_number = phone_number;
   if (whatsapp_number !== undefined) user.whatsapp_number = whatsapp_number;
+  if (city !== undefined) user.city = city;
+  if (state !== undefined) user.state = state;
   if (profile_image_url !== undefined) user.profile_image_url = profile_image_url;
   if (password) user.password_hash = await bcrypt.hash(password, 10);
   await user.save();
-  res.json(user.toJSON());
+
+  const Property = require('../models/Property');
+  const Favorite = require('../models/Favorite');
+  const userJson = user.toJSON();
+  userJson.listed_properties_count = await Property.countDocuments({
+    $or: [{ seller_id: user._id }, { seller: user._id }]
+  });
+  userJson.favorites_count = await Favorite.countDocuments({ user_id: user._id });
+  res.json(userJson);
 };
 
 module.exports = { register, login, googleLogin, getMe, updateMe };

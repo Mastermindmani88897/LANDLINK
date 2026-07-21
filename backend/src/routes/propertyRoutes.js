@@ -3,7 +3,7 @@ const router = express.Router();
 const { protect } = require('../middleware/auth');
 const {
   searchProperties, createProperty, getProperty, updateProperty, deleteProperty,
-  toggleFavorite, scheduleVisit, replyVisit, submitOffer, writeReview, getReviews,
+  getMyListings, getFavorites, toggleFavorite, scheduleVisit, replyVisit, submitOffer, writeReview, getReviews,
   aiGenerateDescription, aiImageAnalysis, aiPricePrediction,
   aiNegotiate, aiInvestmentAnalysis, aiNeighborhoodAnalysis,
   aiChatAssistant, aiInteriorSuggestions,
@@ -15,6 +15,10 @@ router.post('/ai/image-analysis', protect, aiImageAnalysis);
 router.post('/ai/price-prediction', protect, aiPricePrediction);
 router.post('/ai/negotiate', protect, aiNegotiate);
 router.post('/ai/interior-suggestions', protect, aiInteriorSuggestions);
+
+// User-specific list routes (before :id)
+router.get('/my-listings', protect, getMyListings);
+router.get('/favorites/all', protect, getFavorites);
 
 // Property CRUD
 router.get('/', searchProperties);

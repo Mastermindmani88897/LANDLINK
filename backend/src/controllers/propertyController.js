@@ -371,9 +371,34 @@ const createProperty = async (req, res) => {
   res.status(201).json(await populateProperty(property));
 };
 
+// GET /api/v1/properties/my-listings
+const getMyListings = async (req, res) => {
+  const properties = await Property.find({
+    $or: [{ seller_id: req.user._id }, { seller: req.user._id }]
+  }).sort({ created_at: -1 });
+  const result = await Promise.all(properties.map((p) => populateProperty(p)));
+  res.json(result);
+};
+
+// GET /api/v1/properties/favorites/all
+const getFavorites = async (req, res) => {
+  const favDocs = await Favorite.find({ user_id: req.user._id }).populate({
+    path: 'property_id',
+    populate: { path: 'seller_id', select: '-password_hash' }
+  });
+  const result = await Promise.all(
+    favDocs.filter(f => f.property_id).map(f => populateProperty(f.property_id))
+  );
+  res.json(result);
+};
+
 // GET /api/v1/properties/:id
 const getProperty = async (req, res) => {
-  const property = await Property.findById(req.params.id);
+  const property = await Property.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { views: 1 } },
+    { new: true }
+  );
   if (!property) throw createError('Property not found', 404);
   res.json(await populateProperty(property));
 };
@@ -384,7 +409,8 @@ const updateProperty = async (req, res) => {
   if (!property) throw createError('Property not found', 404);
 
   // Check ownership
-  if (property.seller_id.toString() !== req.user._id.toString()) {
+  const ownerId = property.seller_id?.toString() || property.seller?.toString();
+  if (ownerId !== req.user._id.toString()) {
     throw createError('You are not authorized to edit this listing', 403);
   }
 
@@ -461,6 +487,7 @@ const updateProperty = async (req, res) => {
   if (contact_number !== undefined) property.contact_number = contact_number;
   if (whatsapp_number !== undefined) property.whatsapp_number = whatsapp_number;
   if (contact_email !== undefined) property.contact_email = contact_email;
+  if (req.body.status !== undefined) property.status = req.body.status;
   if (amenities !== undefined) property.amenities = amenities;
   if (tags !== undefined) property.tags = tags;
 
@@ -487,7 +514,8 @@ const deleteProperty = async (req, res) => {
   if (!property) throw createError('Property not found', 404);
 
   // Check ownership
-  if (property.seller_id.toString() !== req.user._id.toString()) {
+  const ownerId = property.seller_id?.toString() || property.seller?.toString();
+  if (ownerId !== req.user._id.toString()) {
     throw createError('You are not authorized to delete this listing', 403);
   }
 
@@ -507,9 +535,11 @@ const toggleFavorite = async (req, res) => {
   const existing = await Favorite.findOne({ user_id: req.user._id, property_id: req.params.id });
   if (existing) {
     await existing.deleteOne();
+    await User.findByIdAndUpdate(req.user._id, { $pull: { favorites: req.params.id } });
     return res.json({ status: 'removed', message: 'Removed from favorites' });
   }
   await Favorite.create({ user_id: req.user._id, property_id: req.params.id });
+  await User.findByIdAndUpdate(req.user._id, { $addToSet: { favorites: req.params.id } });
   res.json({ status: 'added', message: 'Added to favorites' });
 };
 
@@ -639,7 +669,7 @@ const aiInteriorSuggestions = async (req, res) => {
 
 module.exports = {
   searchProperties, createProperty, getProperty, updateProperty, deleteProperty,
-  toggleFavorite, scheduleVisit, replyVisit, submitOffer, writeReview, getReviews,
+  getMyListings, getFavorites, toggleFavorite, scheduleVisit, replyVisit, submitOffer, writeReview, getReviews,
   aiGenerateDescription, aiImageAnalysis, aiPricePrediction,
   aiNegotiate, aiInvestmentAnalysis, aiNeighborhoodAnalysis,
   aiChatAssistant, aiInteriorSuggestions,
