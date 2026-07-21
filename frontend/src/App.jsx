@@ -11,6 +11,9 @@ import Settings from './pages/Settings.jsx';
 import Profile from './pages/Profile.jsx';
 import MyListings from './pages/MyListings.jsx';
 import Favorites from './pages/Favorites.jsx';
+import AdminLogin from './pages/AdminLogin.jsx';
+import AdminDashboard from './pages/AdminDashboard.jsx';
+import AdminProtectedRoute from './components/AdminProtectedRoute.jsx';
 
 export default function App() {
   return (
@@ -29,6 +32,25 @@ export default function App() {
             <Route path="/my-listings" element={<MyListings />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/settings" element={<Settings />} />
+
+            {/* Admin Portal Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/*"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
           </Routes>
         </main>
         <Footer />

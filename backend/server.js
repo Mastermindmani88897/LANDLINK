@@ -8,6 +8,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const propertyRoutes = require('./src/routes/propertyRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/properties', propertyRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {

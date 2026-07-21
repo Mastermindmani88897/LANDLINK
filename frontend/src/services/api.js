@@ -197,4 +197,31 @@ export const api = {
       method: 'POST', body: JSON.stringify({ property_id: propertyId, question, chat_history: history }),
     });
   },
+
+  // ─── ADMIN SERVICES ────────────────────────────────────────────────────────
+  async adminLogin(payload) {
+    const data = await apiFetch('/auth/admin/login', { method: 'POST', body: JSON.stringify(payload) });
+    useAppStore.getState().setAuth(data.access_token, data.user);
+    return data;
+  },
+
+  async getAdminStats() {
+    return apiFetch('/admin/stats');
+  },
+
+  async getAdminProperties() {
+    return apiFetch('/admin/properties');
+  },
+
+  async updateAdminPropertyStatus(id, payload) {
+    return apiFetch(`/admin/properties/${id}/status`, { method: 'PUT', body: JSON.stringify(payload) });
+  },
+
+  async deleteAdminProperty(id) {
+    return apiFetch(`/admin/properties/${id}`, { method: 'DELETE' });
+  },
+
+  async getAdminUsers() {
+    return apiFetch('/admin/users');
+  },
 };

@@ -33,4 +33,14 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+/**
+ * Admin only middleware: verify req.user has admin role
+ */
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    return next();
+  }
+  return next(createError('Access denied. You do not have admin privileges.', 403));
+};
+
+module.exports = { protect, adminOnly };

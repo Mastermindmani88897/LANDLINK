@@ -4,11 +4,45 @@ const Property = require('../models/Property');
 const Visit = require('../models/Visit');
 const Offer = require('../models/Offer');
 
+async function seedAdminUser() {
+  const adminEmail = (process.env.ADMIN_EMAIL || 'mani@gmail.com').toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD || 'mani';
+
+  try {
+    const existingAdmin = await User.findOne({ email: adminEmail });
+    if (!existingAdmin) {
+      const passwordHash = await bcrypt.hash(adminPassword, 10);
+      await User.create({
+        email: adminEmail,
+        full_name: 'System Administrator',
+        password_hash: passwordHash,
+        role: 'admin',
+        phone_number: '+91 98765 00000',
+        whatsapp_number: '+91 98765 00000',
+        city: 'Admin City',
+        state: 'Admin State',
+        profile_image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop',
+      });
+      console.log(`✅ Admin account created automatically (${adminEmail})`);
+    } else {
+      if (existingAdmin.role !== 'admin') {
+        existingAdmin.role = 'admin';
+        await existingAdmin.save();
+      }
+      console.log(`ℹ️ Admin account verified (${adminEmail}).`);
+    }
+  } catch (err) {
+    console.warn('⚠️ Admin seed notice:', err.message);
+  }
+}
+
 async function seedInitialData() {
   try {
+    await seedAdminUser();
+
     const existingPropertiesCount = await Property.countDocuments();
     if (existingPropertiesCount > 0) {
-      console.log('ℹ️ Database already contains properties. Skipping auto-seed.');
+      console.log('ℹ️ Database already contains properties. Skipping demo listings seed.');
       return;
     }
 

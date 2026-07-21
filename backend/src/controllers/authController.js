@@ -93,4 +93,27 @@ const updateMe = async (req, res) => {
   res.json(userJson);
 };
 
-module.exports = { register, login, googleLogin, getMe, updateMe };
+// POST /api/v1/auth/admin/login
+const adminLogin = async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) throw createError('Email and password are required', 400);
+
+  const user = await User.findOne({ email: email.toLowerCase() });
+  if (!user) throw createError('Invalid admin credentials', 400);
+
+  const isMatch = await bcrypt.compare(password, user.password_hash);
+  if (!isMatch) throw createError('Invalid admin credentials', 400);
+
+  if (user.role !== 'admin') {
+    throw createError('Access denied. You do not have admin privileges.', 403);
+  }
+
+  const access_token = generateToken(user._id);
+  res.json({
+    access_token,
+    token_type: 'bearer',
+    user: user.toJSON(),
+  });
+};
+
+module.exports = { register, login, googleLogin, getMe, updateMe, adminLogin };
