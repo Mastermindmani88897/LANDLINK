@@ -9,6 +9,7 @@ import {
   MessageSquare, Sparkles, Globe, ShoppingBag, PlusCircle, Shield, Settings as SettingsIcon
 } from 'lucide-react';
 import PasswordInput from './PasswordInput';
+import NotificationCenter from './NotificationCenter';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -163,6 +164,7 @@ export default function Navbar() {
 
               {isAuthenticated ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                  <NotificationCenter />
                   <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', paddingLeft: '0.5rem', borderLeft: '1px solid var(--card-border)' }}>
                     <div style={{ height: '2.1rem', width: '2.1rem', borderRadius: '9999px', overflow: 'hidden', border: '1.5px solid #6366f1' }}>
                       <img src={user?.profile_image_url || user?.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop'} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

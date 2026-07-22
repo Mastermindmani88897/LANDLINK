@@ -125,6 +125,16 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Appointment Portals Shortcut Bar */}
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
+        <Link to="/appointments/owner" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.875rem 1.5rem', fontSize: '0.875rem', fontWeight: 800, borderColor: '#34d399', color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Calendar size={18} /> Owner Appointment Management ({receivedVisits.length})
+        </Link>
+        <Link to="/appointments/buyer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.875rem 1.5rem', fontSize: '0.875rem', fontWeight: 800, borderColor: '#818cf8', color: '#818cf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Clock size={18} /> My Booked Requests ({dashboardData?.my_visits?.length || 0})
+        </Link>
+      </div>
+
       {/* 1. Received Site Visit Requests (As Property Owner) */}
       <div className="glass-panel" style={{ padding: '2rem', borderRadius: '1.5rem', backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)', marginBottom: '2.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

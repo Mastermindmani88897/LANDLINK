@@ -119,15 +119,65 @@ export const api = {
   },
 
   async scheduleVisit(propertyId, visitDate, notes, timeSlot = '10:00 AM - 11:00 AM') {
-    return apiFetch(`/properties/${propertyId}/visit`, {
-      method: 'POST', body: JSON.stringify({ property_id: propertyId, visit_date: visitDate, notes, time_slot: timeSlot }),
+    return apiFetch('/appointments/request', {
+      method: 'POST',
+      body: JSON.stringify({ property_id: propertyId, requested_date: visitDate, message: notes, time_slot: timeSlot }),
     });
   },
 
-  async replyVisit(visitId, status, sellerReply) {
-    return apiFetch(`/properties/visit/${visitId}/reply`, {
-      method: 'PUT', body: JSON.stringify({ status, seller_reply: sellerReply }),
+  async requestAppointment(payload) {
+    return apiFetch('/appointments/request', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
+  },
+
+  async getOwnerAppointments(status = 'ALL') {
+    return apiFetch(`/appointments/owner?status=${encodeURIComponent(status)}`);
+  },
+
+  async getBuyerAppointments() {
+    return apiFetch('/appointments/buyer');
+  },
+
+  async acceptAppointment(id) {
+    return apiFetch(`/appointments/${id}/accept`, { method: 'PATCH' });
+  },
+
+  async rejectAppointment(id, reason) {
+    return apiFetch(`/appointments/${id}/reject`, {
+      method: 'PATCH',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  async cancelAppointment(id) {
+    return apiFetch(`/appointments/${id}/cancel`, { method: 'PATCH' });
+  },
+
+  async replyVisit(visitId, status, sellerReply) {
+    if (status === 'confirmed' || status === 'scheduled') {
+      return apiFetch(`/appointments/${visitId}/accept`, { method: 'PATCH' });
+    }
+    if (status === 'declined' || status === 'reschedule') {
+      return apiFetch(`/appointments/${visitId}/reject`, {
+        method: 'PATCH',
+        body: JSON.stringify({ reason: sellerReply || 'Not available at requested time' }),
+      });
+    }
+    return apiFetch(`/appointments/${visitId}/accept`, { method: 'PATCH' });
+  },
+
+  async getNotifications() {
+    return apiFetch('/notifications');
+  },
+
+  async markNotificationRead(id) {
+    return apiFetch(`/notifications/${id}/read`, { method: 'PATCH' });
+  },
+
+  async markAllNotificationsRead() {
+    return apiFetch('/notifications/read-all', { method: 'PATCH' });
   },
 
   async submitOffer(propertyId, offerAmount, notes) {

@@ -203,7 +203,7 @@ export default function PropertyDetail() {
     setVisitLoading(true);
     try {
       await api.scheduleVisit(propertyId, visitDate, visitNotes, visitTimeSlot);
-      setVisitSuccess("Site visit appointment requested successfully! The owner will confirm your slot.");
+      setVisitSuccess("Your appointment request has been sent to the property owner. You will be notified once they respond.");
       setVisitDate(''); setVisitNotes('');
     } catch (err) {
       alert(err.message || 'Failed to schedule visit');
@@ -814,7 +814,7 @@ export default function PropertyDetail() {
                 </div>
 
                 <button type="submit" disabled={visitLoading} className="btn-secondary" style={{ width: '100%', padding: '0.625rem', fontSize: '0.8125rem', fontWeight: 700, borderColor: 'rgba(99,102,241,0.3)', color: '#818cf8' }}>
-                  {visitLoading ? 'Booking...' : 'Request Visit Appointment'}
+                  {visitLoading ? 'Sending Request...' : 'Send Appointment Request'}
                 </button>
               </form>
             </div>

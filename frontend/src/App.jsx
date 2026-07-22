@@ -18,6 +18,9 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import AdminProtectedRoute from './components/AdminProtectedRoute.jsx';
 import NotFound from './pages/NotFound.jsx';
 
+import OwnerAppointments from './pages/OwnerAppointments.jsx';
+import BuyerAppointments from './pages/BuyerAppointments.jsx';
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -32,6 +35,8 @@ export default function App() {
               <Route path="/properties/:id/edit" element={<Sell />} />
               <Route path="/sell" element={<Sell />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/appointments/owner" element={<OwnerAppointments />} />
+              <Route path="/appointments/buyer" element={<BuyerAppointments />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/my-listings" element={<MyListings />} />
               <Route path="/favorites" element={<Favorites />} />
