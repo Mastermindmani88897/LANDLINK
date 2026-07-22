@@ -8,7 +8,8 @@ import {
   Phone, MessageSquare, Calendar, Star, ShieldCheck,
   ArrowLeft, Sparkles, TrendingUp, Send, ChevronLeft, ChevronRight,
   Bed, Bath, Car, Maximize2, Home, Zap, Droplets, School, Stethoscope,
-  CheckCircle, AlertTriangle, X, Info, BarChart2, Eye, User, Edit, Trash2, Mail, Copy, Video, Share2
+  CheckCircle, AlertTriangle, X, Info, BarChart2, Eye, User, Edit, Trash2, Mail, Copy, Video, Share2,
+  Sprout, Compass
 } from 'lucide-react';
 import PropertyImage from '../components/PropertyImage.jsx';
 import PropertyCard from '../components/PropertyCard.jsx';
