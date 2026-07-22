@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAppStore } from '../store/store';
 import { ShieldCheck, Lock, Mail, Sparkles, ArrowRight, AlertTriangle } from 'lucide-react';
+import PasswordInput from '../components/PasswordInput';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -89,18 +90,14 @@ export default function AdminLogin() {
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.375rem' }}>
               Administrator Password
             </label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#818cf8' }} />
-              <input
-                type="password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="glass-input"
-                style={{ paddingLeft: '2.5rem', fontSize: '0.875rem' }}
-              />
-            </div>
+            <PasswordInput
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              leftIcon={<Lock size={16} />}
+              autoComplete="current-password"
+            />
           </div>
 
           <button

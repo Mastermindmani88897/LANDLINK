@@ -8,6 +8,7 @@ import {
   Building2, User, LogOut, Sun, Moon, Laptop, Menu, X, Heart,
   MessageSquare, Sparkles, Globe, ShoppingBag, PlusCircle, Shield, Settings as SettingsIcon
 } from 'lucide-react';
+import PasswordInput from './PasswordInput';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -285,7 +286,13 @@ export default function Navbar() {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.375rem' }}>Password</label>
-                <input type="password" required placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+                <PasswordInput
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                />
               </div>
               <button type="submit" disabled={isLoading} className="btn-primary" style={{ width: '100%', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 700, marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                 {isLoading ? 'Processing...' : authMode === 'login' ? 'Sign In' : 'Register Account'}

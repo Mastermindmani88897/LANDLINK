@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../store/store';
 import { api } from '../services/api';
 import { translations } from '../utils/translations';
-import { User, Phone, Mail, MapPin, MessageSquare, Check, Sparkles, Shield } from 'lucide-react';
+import { User, Phone, Mail, MapPin, MessageSquare, Check, Sparkles, Shield, Lock } from 'lucide-react';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Settings() {
   const { user, language, updateUser } = useAppStore();
@@ -14,6 +15,10 @@ export default function Settings() {
   const [email, setEmail] = useState(user?.email || '');
   const [address, setAddress] = useState(user?.profile_address || '');
   const [profileImage, setProfileImage] = useState(user?.profile_image_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop');
+
+  // Security / Password state
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -33,16 +38,37 @@ export default function Settings() {
     setIsSaving(true);
     setSuccessMsg('');
     setErrorMsg('');
+
+    if (newPassword && newPassword !== confirmPassword) {
+      setErrorMsg('New password and confirm password do not match.');
+      setIsSaving(false);
+      return;
+    }
+
+    if (newPassword && newPassword.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      setIsSaving(false);
+      return;
+    }
+
     try {
-      const updated = await api.updateMe({
+      const payload = {
         full_name: fullName,
         phone_number: phoneNumber,
         whatsapp_number: whatsappNumber || phoneNumber,
         email,
         profile_image_url: profileImage,
-      });
+      };
+
+      if (newPassword) {
+        payload.password = newPassword;
+      }
+
+      const updated = await api.updateMe(payload);
       updateUser(updated);
-      setSuccessMsg('Personal details saved successfully! Buyers and sellers can now view your updated information.');
+      setSuccessMsg('Account details & security settings updated successfully!');
+      setNewPassword('');
+      setConfirmPassword('');
     } catch (err) {
       setErrorMsg(err.message || 'Failed to save settings');
     } finally {
@@ -83,7 +109,7 @@ export default function Settings() {
 
       <form onSubmit={handleSave} className="glass-panel" style={{ borderRadius: '1.25rem', padding: '2rem', backgroundColor: 'rgba(13,9,37,0.4)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
-        {/* Avatar */}
+        {/* Avatar Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', paddingBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ height: '4.5rem', width: '4.5rem', borderRadius: '9999px', overflow: 'hidden', border: '3px solid #6366f1', flexShrink: 0 }}>
             <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -97,7 +123,7 @@ export default function Settings() {
         </div>
 
         {/* Inputs */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.375rem' }}>{t.fullName}</label>
             <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
@@ -127,6 +153,35 @@ export default function Settings() {
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.375rem' }}>Profile Picture Link</label>
           <input type="url" placeholder="https://..." value={profileImage} onChange={(e) => setProfileImage(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
+        </div>
+
+        {/* Security & Change Password Section */}
+        <div style={{ paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Lock size={16} style={{ color: '#818cf8' }} /> Account Security & Update Password
+          </h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.375rem' }}>New Password</label>
+              <PasswordInput
+                placeholder="Leave blank to keep current"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.375rem' }}>Confirm New Password</label>
+              <PasswordInput
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+          </div>
         </div>
 
         <button type="submit" disabled={isSaving} className="btn-primary" style={{ width: '100%', padding: '0.875rem', fontSize: '0.9375rem', fontWeight: 800, marginTop: '0.5rem' }}>
