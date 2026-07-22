@@ -3,7 +3,7 @@ const Favorite = require('../models/Favorite');
 const Visit = require('../models/Visit');
 const Offer = require('../models/Offer');
 
-// GET /api/v1/dashboard/user (Unified Dashboard)
+// GET /api/v1/dashboard/user (Unified Dashboard for Sellers & Buyers)
 const getUserDashboard = async (req, res) => {
   const userId = req.user._id;
 
@@ -13,14 +13,35 @@ const getUserDashboard = async (req, res) => {
   }).sort({ created_at: -1 });
   const myPropIds = myProperties.map((p) => p._id);
 
-  // 2. Visits requested for my properties (I am seller)
-  const receivedVisits = myPropIds.length
-    ? await Visit.find({ property_id: { $in: myPropIds } })
-        .populate('property_id')
-        .populate('buyer_id', '-password_hash')
-    : [];
+  // Auto-backfill owner_id on existing Visit documents if missing
+  try {
+    const unassignedVisits = await Visit.find({ owner_id: { $exists: false } }).populate('property_id');
+    for (const v of unassignedVisits) {
+      if (v.property_id) {
+        const ownerId = v.property_id.seller_id || v.property_id.seller;
+        if (ownerId) {
+          v.owner_id = ownerId;
+          await v.save();
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Visit owner_id backfill error:', err);
+  }
 
-  // 3. Offers received for my properties (I am seller)
+  // 2. Visits requested for my properties (I am property owner)
+  const receivedVisits = await Visit.find({
+    $or: [
+      { owner_id: userId },
+      { property_id: { $in: myPropIds } }
+    ]
+  })
+    .populate('property_id')
+    .populate('buyer_id', '-password_hash')
+    .populate('owner_id', '-password_hash')
+    .sort({ created_at: -1 });
+
+  // 3. Offers received for my properties (I am property owner)
   const receivedOffers = myPropIds.length
     ? await Offer.find({ property_id: { $in: myPropIds } })
         .populate('property_id')
@@ -50,12 +71,34 @@ const getUserDashboard = async (req, res) => {
 
   const myVisits = await Visit.find({ buyer_id: userId })
     .populate('property_id')
-    .populate('buyer_id', '-password_hash');
+    .populate('buyer_id', '-password_hash')
+    .populate('owner_id', '-password_hash')
+    .sort({ created_at: -1 });
 
   const serializeDoc = (doc) => {
     const json = doc.toJSON ? doc.toJSON() : { ...doc };
-    if (json.property_id && typeof json.property_id === 'object') json.property = json.property_id;
-    if (json.buyer_id && typeof json.buyer_id === 'object') json.buyer = json.buyer_id;
+
+    if (json.property_id && typeof json.property_id === 'object') {
+      json.property = json.property_id;
+      json.property_title = json.property_id.title;
+      json.property_city = json.property_id.city;
+      json.property_address = json.property_id.address;
+    }
+
+    if (json.buyer_id && typeof json.buyer_id === 'object') {
+      json.buyer = json.buyer_id;
+      json.buyer_name = json.buyer_id.full_name || json.buyer_id.name || 'Interested Buyer';
+      json.buyer_phone = json.buyer_id.phone_number || json.buyer_id.phone;
+      json.buyer_email = json.buyer_id.email;
+    }
+
+    if (json.owner_id && typeof json.owner_id === 'object') {
+      json.owner = json.owner_id;
+      json.owner_name = json.owner_id.full_name || json.owner_id.name || 'Property Owner';
+      json.owner_phone = json.owner_id.phone_number || json.owner_id.phone;
+      json.owner_email = json.owner_id.email;
+    }
+
     return json;
   };
 
@@ -71,6 +114,7 @@ const getUserDashboard = async (req, res) => {
       favorites_count: myFavorites.length,
       offers_received_count: receivedOffers.length,
       visits_scheduled_count: receivedVisits.length,
+      my_visits_count: myVisits.length,
     },
   });
 };

@@ -580,9 +580,60 @@ const toggleFavorite = async (req, res) => {
 const scheduleVisit = async (req, res) => {
   const property = await Property.findById(req.params.id);
   if (!property) throw createError('Property not found', 404);
-  const { visit_date, notes } = req.body;
-  const visit = await Visit.create({ property_id: req.params.id, buyer_id: req.user._id, visit_date, notes, status: 'pending' });
-  await visit.populate(['property_id', 'buyer_id']);
+
+  const owner_id = property.seller_id || property.seller;
+  if (!owner_id) {
+    throw createError('Property owner information unavailable.', 400);
+  }
+
+  // Prevent property owner from scheduling a visit on their own listing
+  if (String(owner_id) === String(req.user._id)) {
+    throw createError('Property owners cannot schedule visit appointments for their own listings.', 400);
+  }
+
+  const { visit_date, time_slot, notes } = req.body;
+  if (!visit_date) {
+    throw createError('Visit date is required.', 400);
+  }
+
+  const parsedDate = new Date(visit_date);
+  if (isNaN(parsedDate.getTime())) {
+    throw createError('Invalid visit date provided.', 400);
+  }
+
+  // Check for existing active booking for the same property, buyer & date
+  const startOfDay = new Date(parsedDate);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(parsedDate);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const existingVisit = await Visit.findOne({
+    property_id: req.params.id,
+    buyer_id: req.user._id,
+    visit_date: { $gte: startOfDay, $lte: endOfDay },
+    status: { $nin: ['cancelled', 'declined'] },
+  });
+
+  if (existingVisit) {
+    throw createError('You already have an active site visit appointment for this property on this date.', 400);
+  }
+
+  const visit = await Visit.create({
+    property_id: req.params.id,
+    buyer_id: req.user._id,
+    owner_id: owner_id,
+    visit_date: parsedDate,
+    time_slot: time_slot || '10:00 AM - 11:00 AM',
+    notes: notes || null,
+    status: 'pending',
+  });
+
+  await visit.populate([
+    { path: 'property_id' },
+    { path: 'buyer_id', select: '-password_hash' },
+    { path: 'owner_id', select: '-password_hash' },
+  ]);
+
   res.status(201).json(visit.toJSON());
 };
 
@@ -590,14 +641,27 @@ const scheduleVisit = async (req, res) => {
 const replyVisit = async (req, res) => {
   const { visitId } = req.params;
   const { status, seller_reply } = req.body;
+
   const visit = await Visit.findById(visitId).populate('property_id');
   if (!visit) throw createError('Visit request not found', 404);
+
+  // Authorization check: logged in user must be the property owner
+  const prop = visit.property_id;
+  const ownerId = visit.owner_id || (prop ? (prop.seller_id || prop.seller) : null);
+  if (ownerId && String(ownerId) !== String(req.user._id)) {
+    throw createError('You are not authorized to respond to this appointment request.', 403);
+  }
 
   if (status) visit.status = status;
   if (seller_reply !== undefined) visit.seller_reply = seller_reply;
   await visit.save();
 
-  await visit.populate('buyer_id', '-password_hash');
+  await visit.populate([
+    { path: 'property_id' },
+    { path: 'buyer_id', select: '-password_hash' },
+    { path: 'owner_id', select: '-password_hash' },
+  ]);
+
   res.json(visit.toJSON());
 };
 

@@ -71,6 +71,7 @@ export default function PropertyDetail() {
 
   // Forms
   const [visitDate, setVisitDate] = useState('');
+  const [visitTimeSlot, setVisitTimeSlot] = useState('10:00 AM - 11:00 AM');
   const [visitNotes, setVisitNotes] = useState('');
   const [visitLoading, setVisitLoading] = useState(false);
   const [visitSuccess, setVisitSuccess] = useState('');
@@ -201,8 +202,8 @@ export default function PropertyDetail() {
     if (!isAuthenticated) { alert('Please sign in first'); return; }
     setVisitLoading(true);
     try {
-      await api.scheduleVisit(propertyId, visitDate, visitNotes);
-      setVisitSuccess("Site visit request submitted! The seller will contact you to confirm.");
+      await api.scheduleVisit(propertyId, visitDate, visitNotes, visitTimeSlot);
+      setVisitSuccess("Site visit appointment requested successfully! The owner will confirm your slot.");
       setVisitDate(''); setVisitNotes('');
     } catch (err) {
       alert(err.message || 'Failed to schedule visit');
@@ -771,16 +772,49 @@ export default function PropertyDetail() {
               </h4>
               {visitSuccess && <div style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: 700, marginBottom: '0.5rem' }}>{visitSuccess}</div>}
               <form onSubmit={handleScheduleVisit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <input
-                  type="date"
-                  required
-                  value={visitDate}
-                  onChange={(e) => setVisitDate(e.target.value)}
-                  className="glass-input"
-                  style={{ fontSize: '0.8125rem' }}
-                />
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Preferred Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={visitDate}
+                    onChange={(e) => setVisitDate(e.target.value)}
+                    className="glass-input"
+                    style={{ fontSize: '0.8125rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Time Slot</label>
+                  <select
+                    value={visitTimeSlot}
+                    onChange={(e) => setVisitTimeSlot(e.target.value)}
+                    className="glass-input"
+                    style={{ fontSize: '0.8125rem' }}
+                  >
+                    <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
+                    <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                    <option value="11:30 AM - 12:30 PM">11:30 AM - 12:30 PM</option>
+                    <option value="02:00 PM - 03:00 PM">02:00 PM - 03:00 PM</option>
+                    <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
+                    <option value="06:00 PM - 07:00 PM">06:00 PM - 07:00 PM</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Notes for Owner (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Bringing family along..."
+                    value={visitNotes}
+                    onChange={(e) => setVisitNotes(e.target.value)}
+                    className="glass-input"
+                    style={{ fontSize: '0.8125rem' }}
+                  />
+                </div>
+
                 <button type="submit" disabled={visitLoading} className="btn-secondary" style={{ width: '100%', padding: '0.625rem', fontSize: '0.8125rem', fontWeight: 700, borderColor: 'rgba(99,102,241,0.3)', color: '#818cf8' }}>
-                  {visitLoading ? 'Booking...' : 'Request Visit Date'}
+                  {visitLoading ? 'Booking...' : 'Request Visit Appointment'}
                 </button>
               </form>
             </div>

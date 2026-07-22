@@ -125,28 +125,110 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Received Site Visit Requests */}
+      {/* 1. Received Site Visit Requests (As Property Owner) */}
       <div className="glass-panel" style={{ padding: '2rem', borderRadius: '1.5rem', backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)', marginBottom: '2.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Calendar size={20} style={{ color: '#34d399' }} /> Received Site Visit Requests
+          <Calendar size={20} style={{ color: '#34d399' }} /> Received Site Visit Requests (As Property Owner)
         </h2>
 
         {receivedVisits.length === 0 ? (
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No site visit requests received yet.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No site visit requests received for your properties yet.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {receivedVisits.map((v) => (
-              <div key={v._id || v.id} style={{ padding: '1rem', borderRadius: '1rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                <div>
-                  <h4 style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>{v.buyer_name || 'Interested Buyer'}</h4>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Requested Date: {v.visit_date || 'TBD'}</span>
-                  {v.notes && <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>"{v.notes}"</p>}
+            {receivedVisits.map((v) => {
+              const visitDateFormatted = v.visit_date ? new Date(v.visit_date).toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : 'TBD';
+              const statusColor = v.status === 'confirmed' ? '#34d399' : v.status === 'declined' ? '#fb7185' : '#f59e0b';
+
+              return (
+                <div key={v._id || v.id} style={{ padding: '1.25rem', borderRadius: '1rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 900, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+                        {v.property_title || v.property?.title || 'Property Listing'}
+                      </span>
+                      <span style={{ padding: '0.15rem 0.5rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', backgroundColor: `${statusColor}20`, color: statusColor, border: `1px solid ${statusColor}40` }}>
+                        {v.status || 'pending'}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      <span>👤 Buyer: <strong style={{ color: 'var(--text-primary)' }}>{v.buyer_name || v.buyer?.full_name || 'Interested Buyer'}</strong></span>
+                      {v.buyer_phone && <span>📞 {v.buyer_phone}</span>}
+                      {v.buyer_email && <span>✉️ {v.buyer_email}</span>}
+                    </div>
+
+                    <div style={{ fontSize: '0.8125rem', color: '#818cf8', fontWeight: 700, display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.125rem' }}>
+                      <span>📅 Date: {visitDateFormatted}</span>
+                      <span>⏰ Slot: {v.time_slot || '10:00 AM - 11:00 AM'}</span>
+                    </div>
+
+                    {v.notes && <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginTop: '0.25rem', fontStyle: 'italic' }}>&ldquo;{v.notes}&rdquo;</p>}
+                    {v.seller_reply && <p style={{ fontSize: '0.8125rem', color: '#34d399', marginTop: '0.25rem', fontWeight: 600 }}>Your Reply: &ldquo;{v.seller_reply}&rdquo;</p>}
+                  </div>
+
+                  <button onClick={() => { setReplyVisitId(v._id || v.id); setReplyStatus(v.status === 'confirmed' ? 'confirmed' : 'confirmed'); }} className="btn-secondary" style={{ fontSize: '0.8125rem', padding: '0.5rem 1rem', borderColor: '#818cf8', color: '#818cf8', fontWeight: 700 }}>
+                    Reply / Update Status
+                  </button>
                 </div>
-                <button onClick={() => setReplyVisitId(v._id || v.id)} className="btn-secondary" style={{ fontSize: '0.8125rem', padding: '0.5rem 1rem', borderColor: '#818cf8', color: '#818cf8' }}>
-                  Reply to Buyer
-                </button>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 2. My Booked Site Visits (As Buyer) */}
+      <div className="glass-panel" style={{ padding: '2rem', borderRadius: '1.5rem', backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)', marginBottom: '2.5rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Clock size={20} style={{ color: '#818cf8' }} /> My Booked Appointments (As Buyer)
+        </h2>
+
+        {(dashboardData?.my_visits || []).length === 0 ? (
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>You haven't requested any site visit appointments yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {(dashboardData?.my_visits || []).map((v) => {
+              const visitDateFormatted = v.visit_date ? new Date(v.visit_date).toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : 'TBD';
+              const statusColor = v.status === 'confirmed' ? '#34d399' : v.status === 'declined' ? '#fb7185' : '#f59e0b';
+
+              return (
+                <div key={v._id || v.id} style={{ padding: '1.25rem', borderRadius: '1rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 900, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+                        {v.property_title || v.property?.title || 'Property Listing'}
+                      </span>
+                      <span style={{ padding: '0.15rem 0.5rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', backgroundColor: `${statusColor}20`, color: statusColor, border: `1px solid ${statusColor}40` }}>
+                        {v.status || 'pending'}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.8125rem', color: '#818cf8', fontWeight: 700, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      <span>📅 Date: {visitDateFormatted}</span>
+                      <span>⏰ Time Slot: {v.time_slot || '10:00 AM - 11:00 AM'}</span>
+                    </div>
+
+                    {v.owner_name && (
+                      <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                        Property Owner: <strong style={{ color: 'var(--text-primary)' }}>{v.owner_name}</strong>
+                      </div>
+                    )}
+
+                    {v.notes && <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginTop: '0.25rem', fontStyle: 'italic' }}>Your Note: &ldquo;{v.notes}&rdquo;</p>}
+                    {v.seller_reply && <p style={{ fontSize: '0.8125rem', color: '#34d399', marginTop: '0.25rem', fontWeight: 600 }}>Owner Response: &ldquo;{v.seller_reply}&rdquo;</p>}
+                  </div>
+
+                  {(v.property?._id || v.property?.id || v.property_id?._id || v.property_id?.id) && (
+                    <Link
+                      to={`/properties/${v.property?._id || v.property?.id || v.property_id?._id || v.property_id?.id}`}
+                      className="btn-secondary"
+                      style={{ fontSize: '0.8125rem', padding: '0.5rem 1rem', textDecoration: 'none' }}
+                    >
+                      View Property
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

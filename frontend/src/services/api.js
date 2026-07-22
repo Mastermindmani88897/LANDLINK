@@ -118,9 +118,9 @@ export const api = {
     return apiFetch(`/properties/${id}/favorite`, { method: 'POST' });
   },
 
-  async scheduleVisit(propertyId, visitDate, notes) {
+  async scheduleVisit(propertyId, visitDate, notes, timeSlot = '10:00 AM - 11:00 AM') {
     return apiFetch(`/properties/${propertyId}/visit`, {
-      method: 'POST', body: JSON.stringify({ property_id: propertyId, visit_date: visitDate, notes }),
+      method: 'POST', body: JSON.stringify({ property_id: propertyId, visit_date: visitDate, notes, time_slot: timeSlot }),
     });
   },
 
