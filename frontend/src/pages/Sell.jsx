@@ -94,6 +94,9 @@ export default function Sell() {
   const [sellerPhone, setSellerPhone] = useState(user?.phone_number || '');
   const [sellerEmail, setSellerEmail] = useState(user?.email || '');
 
+  // Edit mode: track the original property title for the banner
+  const [editPropertyTitle, setEditPropertyTitle] = useState('');
+
   // Images state
   const [imageUrls, setImageUrls] = useState([]);
   const [urlInput, setUrlInput] = useState('');
@@ -110,7 +113,13 @@ export default function Sell() {
     async function loadEditProperty() {
       try {
         const prop = await api.getProperty(editId);
-        if (prop.title) setTitle(prop.title);
+
+        // Set the banner title
+        if (prop.title) {
+          setEditPropertyTitle(prop.title);
+          setTitle(prop.title);
+        }
+
         if (prop.property_type) setPropertyType(prop.property_type);
         if (prop.house_type) setHouseType(prop.house_type);
         if (prop.area_unit) setAreaUnit(prop.area_unit);
@@ -127,14 +136,26 @@ export default function Sell() {
         if (prop.state) setState(prop.state);
         if (prop.description) setDescription(prop.description);
         if (prop.reason_for_selling) setReasonForSelling(prop.reason_for_selling);
+        // Contact details — try prop-level contact first, fall back to seller object
+        const sellerObj = prop.seller && typeof prop.seller === 'object' ? prop.seller : null;
         if (prop.contact_number) setSellerPhone(prop.contact_number);
+        else if (sellerObj?.phone || sellerObj?.phone_number) setSellerPhone(sellerObj.phone || sellerObj.phone_number);
         if (prop.contact_email) setSellerEmail(prop.contact_email);
+        else if (sellerObj?.email) setSellerEmail(sellerObj.email);
+        if (sellerObj?.full_name || sellerObj?.name) setSellerName(sellerObj.full_name || sellerObj.name);
+
         if (prop.land_factors?.length) setSelectedLandFactors(prop.land_factors);
         if (prop.soil_and_infrastructure?.length) setSelectedSoilAndInfra(prop.soil_and_infrastructure);
         if (prop.commercial_plot_features?.length) setCommercialPlotFeatures(prop.commercial_plot_features);
         if (prop.villa_amenities?.length) setVillaAmenities(prop.villa_amenities);
+
+        // ── Images: extract URL strings from the images array ──────────────
+        // Backend stores images as [{image_url, ...}]; we keep them as plain strings in state.
         if (prop.images?.length) {
-          setImageUrls(prop.images.map(img => typeof img === 'string' ? img : img.image_url || img.url));
+          const urls = prop.images
+            .map(img => (typeof img === 'string' ? img : img?.image_url || img?.url))
+            .filter(Boolean);
+          setImageUrls(urls);
         }
 
         // House
@@ -272,6 +293,9 @@ export default function Sell() {
     }
   };
 
+  // ── formData: single source of truth for preview & submit ────────────────
+  // images is kept as a plain string array so the backend updateProperty handler
+  // receives raw URL strings (it wraps them into {image_url,...} objects itself).
   const formData = {
     id: editId || 'preview-id',
     _id: editId || 'preview-id',
@@ -295,6 +319,7 @@ export default function Sell() {
     reason_for_selling: reasonForSelling,
     contact_number: sellerPhone,
     contact_email: sellerEmail,
+    furnished_status: furnishedStatus,
 
     // House Specific
     house_bedrooms: parseInt(houseBedrooms || 0),
@@ -302,7 +327,6 @@ export default function Sell() {
     house_age: parseFloat(houseAge || 0),
     house_total_rooms: parseInt(houseTotalRooms || 0),
     house_total_floors: parseInt(houseTotalFloors || 1),
-    house_furnishing: furnishedStatus,
 
     // Villa Specific
     villa_bedrooms: parseInt(villaBedrooms || 0),
@@ -310,7 +334,6 @@ export default function Sell() {
     villa_total_floors: parseInt(villaTotalFloors || 1),
     villa_plot_area: parseFloat(villaPlotArea || 0),
     villa_amenities: villaAmenities,
-    villa_features: villaAmenities,
 
     // Apartment Specific
     apartment_total_floors: parseInt(apartmentTotalFloors || 1),
@@ -325,7 +348,6 @@ export default function Sell() {
     access_road_type: accessRoadType,
     corner_plot_status: Boolean(cornerPlotStatus),
     plot_facing: plotFacing,
-    furnished_status: furnishedStatus,
 
     // Agricultural
     cropping_intensity: croppingIntensity,
@@ -337,8 +359,15 @@ export default function Sell() {
     land_factors: selectedLandFactors,
     soil_and_infrastructure: selectedSoilAndInfra,
     commercial_plot_features: commercialPlotFeatures,
+
+    // ── Image fields ──────────────────────────────────────────────────────
+    // image_urls: plain strings — used for preview card display
+    // images:     plain strings — sent to backend which wraps them into objects
     image_urls: imageUrls,
-    images: imageUrls.map((url) => (typeof url === 'string' ? { image_url: url } : url)),
+    images: imageUrls, // send raw URL strings; backend handles wrapping
+    // For the PropertyCard preview we also supply the structured format
+    imagesForCard: imageUrls.map(url => ({ image_url: url })),
+
     status: 'approved',
     is_verified: true,
     seller_type: 'owner',
@@ -351,10 +380,18 @@ export default function Sell() {
 
     try {
       if (isEditMode) {
-        await api.updateProperty(editId, formData);
+        // Build the PUT payload — images MUST be a plain string array so the
+        // backend updateProperty handler can wrap them into {image_url,...} objects.
+        const updatePayload = {
+          ...formData,
+          images: imageUrls, // raw strings only
+        };
+        // Remove the preview-only field so it doesn't pollute the request
+        delete updatePayload.imagesForCard;
+        await api.updateProperty(editId, updatePayload);
         navigate(`/properties/${editId}`);
       } else {
-        const created = await api.createProperty(formData);
+        await api.createProperty(formData);
         setCurrentStep(7);
       }
     } catch (err) {
@@ -391,7 +428,24 @@ export default function Sell() {
       <SEO title={isEditMode ? 'Edit Listing' : 'Post Property Listing'} description="List your property directly on LandLink AI with zero brokerage and AI copywriter assistance." />
 
       <div className="mx-auto max-w-5xl px-4 sm:px-6" style={{ paddingTop: '2.5rem' }}>
-        
+
+        {/* Edit Mode Context Banner */}
+        {isEditMode && editPropertyTitle && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            padding: '0.75rem 1.25rem', borderRadius: '0.875rem', marginBottom: '1.5rem',
+            backgroundColor: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)',
+          }}>
+            <Eye size={16} style={{ color: '#818cf8', flexShrink: 0 }} />
+            <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#818cf8' }}>
+              Editing: &ldquo;{editPropertyTitle}&rdquo;
+            </span>
+            <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              All existing data has been preloaded below.
+            </span>
+          </div>
+        )}
+
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#818cf8' }}>
@@ -851,62 +905,19 @@ export default function Sell() {
               </motion.div>
             )}
 
-            {/* Step 4: Photos */}
+            {/* Step 4: Photos — single authoritative block */}
             {currentStep === 4 && (
               <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
-                  Step 4: Upload Property Images
+                  Step 4: Property Images {isEditMode && imageUrls.length > 0 && <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#34d399', marginLeft: '0.5rem' }}>({imageUrls.length} existing image{imageUrls.length !== 1 ? 's' : ''} loaded)</span>}
                 </h3>
 
-                <div style={{ border: '2px dashed rgba(99,102,241,0.4)', borderRadius: '1.25rem', padding: '2rem', textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.03)' }}>
-                  <Upload size={32} style={{ color: '#818cf8', margin: '0 auto 0.75rem' }} />
-                  <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-                    Drag & Drop Property Photos Here
-                  </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Supports PNG, JPG, WEBP formats</p>
-                  <input type="file" multiple accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} id="photo-upload-input" />
-                  <label htmlFor="photo-upload-input" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer', display: 'inline-block' }}>
-                    Select Files from Device
-                  </label>
-                </div>
-
-                {/* Direct Image URL Add */}
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input
-                    type="url"
-                    placeholder="Or paste an image web URL..."
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    className="glass-input"
-                    style={{ fontSize: '0.8125rem' }}
-                  />
-                  <button type="button" onClick={handleAddUrl} className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.8125rem', flexShrink: 0 }}>
-                    Add URL
-                  </button>
-                </div>
-
-                {/* Uploaded Thumbnails Grid */}
-                {imageUrls.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
-                    {imageUrls.map((img, i) => (
-                      <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
-                        <img src={img} alt={`Upload ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <button type="button" onClick={() => handleRemoveImage(i)} style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'rgba(239,68,68,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
+                {/* Edit mode — existing images info */}
+                {isEditMode && imageUrls.length > 0 && (
+                  <div style={{ padding: '0.75rem 1rem', borderRadius: '0.75rem', backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', fontSize: '0.8125rem', color: '#34d399', fontWeight: 700 }}>
+                    ✓ Existing images are preloaded below. You can keep them, remove individual ones, or upload additional photos.
                   </div>
                 )}
-              </motion.div>
-            )}
-
-            {/* Step 4: Photos */}
-            {currentStep === 4 && (
-              <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.75rem' }}>
-                  Step 4: Upload Property Images
-                </h3>
 
                 <div style={{ border: '2px dashed rgba(99,102,241,0.4)', borderRadius: '1.25rem', padding: '2rem', textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.03)' }}>
                   <Upload size={32} style={{ color: '#818cf8', margin: '0 auto 0.75rem' }} />
@@ -916,7 +927,7 @@ export default function Sell() {
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Supports PNG, JPG, WEBP formats</p>
                   <input type="file" multiple accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} id="photo-upload-input" />
                   <label htmlFor="photo-upload-input" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer', display: 'inline-block' }}>
-                    Select Files from Device
+                    {imageUrls.length > 0 ? 'Upload Additional Photos' : 'Select Files from Device'}
                   </label>
                 </div>
 
@@ -935,20 +946,43 @@ export default function Sell() {
                   </button>
                 </div>
 
-                {/* Uploaded Thumbnails Grid */}
+                {/* Image Thumbnails Grid — existing + newly added */}
                 {imageUrls.length > 0 ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '0.75rem', marginTop: '0.5rem' }}>
                     {imageUrls.map((img, i) => (
-                      <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
-                        <img src={img} alt={`Upload ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <button type="button" onClick={() => handleRemoveImage(i)} style={{ position: 'absolute', top: '0.25rem', right: '0.25rem', backgroundColor: 'rgba(239,68,68,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                          <X size={12} />
+                      <div key={`${img}-${i}`} style={{ position: 'relative', aspectRatio: '1', borderRadius: '0.875rem', overflow: 'hidden', border: '2px solid var(--card-border)' }}>
+                        <img
+                          src={img}
+                          alt={`Property image ${i + 1}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex'; }}
+                        />
+                        {/* Fallback for broken image URLs */}
+                        <div style={{ display: 'none', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(15,23,42,0.7)', color: '#64748b', fontSize: '0.625rem', fontWeight: 700, flexDirection: 'column', gap: '0.25rem' }}>
+                          <ImageIcon size={18} />
+                          <span>Load Error</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(i)}
+                          title="Remove this image"
+                          style={{ position: 'absolute', top: '0.3rem', right: '0.3rem', backgroundColor: 'rgba(239,68,68,0.85)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
+                        >
+                          <X size={13} />
                         </button>
+                        <div style={{ position: 'absolute', bottom: '0.25rem', left: '0.25rem', backgroundColor: 'rgba(0,0,0,0.55)', color: 'white', fontSize: '0.5625rem', fontWeight: 800, padding: '0.1rem 0.35rem', borderRadius: '0.25rem' }}>
+                          {i + 1}
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8125rem', marginTop: '0.5rem' }}>No images added yet. Upload photos or add a URL above.</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', padding: '2rem', borderRadius: '1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px dashed var(--card-border)', marginTop: '0.5rem' }}>
+                    <ImageIcon size={32} style={{ color: '#475569' }} />
+                    <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8125rem', fontWeight: 600, margin: 0 }}>
+                      No images yet. Upload property photos above to attract more buyers.
+                    </p>
+                  </div>
                 )}
               </motion.div>
             )}
@@ -1001,7 +1035,8 @@ export default function Sell() {
                 </p>
 
                 <div style={{ maxWidth: '360px', margin: '0 auto 1.5rem', width: '100%' }}>
-                  <PropertyCard property={formData} />
+                  {/* Pass imagesForCard so PropertyCard sees the {image_url} format it expects */}
+                  <PropertyCard property={{ ...formData, images: formData.imagesForCard }} />
                 </div>
 
                 {/* Detailed Category-Specific Preview Box */}

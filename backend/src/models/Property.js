@@ -90,6 +90,7 @@ const propertySchema = new Schema(
     // Road and Access Fields
     access_road_type: { type: String, default: null },
     corner_plot_status: { type: Boolean, default: false },
+    plot_facing: { type: String, default: null },
 
     // Agricultural Cultivation Fields
     cropping_intensity: { type: String, default: null },

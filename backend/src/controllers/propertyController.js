@@ -435,13 +435,16 @@ const updateProperty = async (req, res) => {
   }
 
   const {
-    title, description, property_type, house_type, land_factors, soil_and_infrastructure, commercial_plot_features, area_unit, expected_price, original_price, negotiable,
+    title, description, property_type, house_type, land_factors, soil_and_infrastructure, commercial_plot_features, area_unit,
+    expected_price, min_expected_price, max_expected_price,
+    original_price, negotiable,
     area_sqft, bedrooms, bathrooms, floors, parking, year_built,
     ownership_type, property_age, furnished_status,
     house_bedrooms, house_bathrooms, house_age, house_total_rooms, house_total_floors,
     villa_bedrooms, villa_bathrooms, villa_total_floors, villa_plot_area, villa_amenities,
-    apartment_total_floors, apartment_rooms_per_floor, apartment_unit_bedrooms, apartment_unit_bathrooms, apartment_units_per_floor,
-    access_road_type, corner_plot_status,
+    apartment_total_floors, apartment_rooms_per_floor, apartment_unit_bedrooms, apartment_unit_bathrooms,
+    apartment_units_per_floor, apartment_total_flats, flat_floor_number,
+    access_road_type, corner_plot_status, plot_facing,
     cropping_intensity, crop_fallow_duration,
     water_pump_count, solar_grid_integration,
     address, city, state, country,
@@ -477,12 +480,15 @@ const updateProperty = async (req, res) => {
   if (flat_floor_number !== undefined) property.flat_floor_number = parseInt(flat_floor_number);
   if (access_road_type !== undefined) property.access_road_type = access_road_type;
   if (corner_plot_status !== undefined) property.corner_plot_status = !!corner_plot_status;
+  if (plot_facing !== undefined) property.plot_facing = plot_facing;
   if (cropping_intensity !== undefined) property.cropping_intensity = cropping_intensity;
   if (crop_fallow_duration !== undefined) property.crop_fallow_duration = parseFloat(crop_fallow_duration);
   if (property.property_type === 'Villa' || property.property_type === 'Flat') property.water_pump_count = 0;
   else if (water_pump_count !== undefined) property.water_pump_count = parseInt(water_pump_count);
   if (solar_grid_integration !== undefined) property.solar_grid_integration = !!solar_grid_integration;
   if (expected_price !== undefined) property.expected_price = parseFloat(expected_price);
+  if (min_expected_price !== undefined) property.min_expected_price = parseFloat(min_expected_price);
+  if (max_expected_price !== undefined) property.max_expected_price = parseFloat(max_expected_price);
   if (original_price !== undefined) property.original_price = parseFloat(original_price);
   if (negotiable !== undefined) property.negotiable = negotiable;
   if (area_sqft !== undefined) property.area_sqft = parseFloat(area_sqft);
@@ -511,17 +517,22 @@ const updateProperty = async (req, res) => {
   if (amenities !== undefined) property.amenities = amenities;
   if (tags !== undefined) property.tags = tags;
 
+  // images: accept both raw URL strings AND {image_url, ...} objects from the frontend.
+  // Always normalise to the full sub-document shape so MongoDB stores clean data.
   if (images !== undefined && Array.isArray(images)) {
-    property.images = images.map((url) => ({
-      image_url: url,
-      analyzed_cracks: false,
-      analyzed_leakage: false,
-      analyzed_paint: 'Good',
-      analyzed_flooring: 'Good',
-      analyzed_garden: 'N/A',
-      analyzed_roof: 'Good',
-      condition_score: property.overall_condition_score || 9.2,
-    }));
+    property.images = images.map((item) => {
+      const url = typeof item === 'string' ? item : (item?.image_url || item?.url || String(item));
+      return {
+        image_url: url,
+        analyzed_cracks: false,
+        analyzed_leakage: false,
+        analyzed_paint: 'Good',
+        analyzed_flooring: 'Good',
+        analyzed_garden: 'N/A',
+        analyzed_roof: 'Good',
+        condition_score: property.overall_condition_score || 9.2,
+      };
+    }).filter(img => img.image_url); // drop any entries with empty URLs
   }
 
   await property.save();
