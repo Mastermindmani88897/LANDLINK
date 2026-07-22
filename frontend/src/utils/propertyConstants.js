@@ -1,15 +1,25 @@
-// Constants for Property Types, Specific Category Fields, Access Roads & Utilities
+/**
+ * propertyConstants.js
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Dropdown option arrays used across the application.
+ *
+ * PROPERTY_TYPES is the canonical list for the UI.
+ * For type-level configuration (which fields to show, card specs, etc.)
+ * use propertyFieldConfig.js instead.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 
+// Canonical property types displayed in forms and filters.
+// 'Flat' is now mapped to 'Apartment' (see propertyFieldConfig.js PROPERTY_TYPE_ALIASES).
+// 'Commercial' is now mapped to 'Commercial Building'.
 export const PROPERTY_TYPES = [
   'House',
-  'Apartment',
-  'Flat',
   'Villa',
+  'Apartment',
+  'Agricultural Land',
   'Residential Plot',
   'Commercial Plot',
   'Commercial Building',
-  'Commercial',
-  'Agricultural Land',
 ];
 
 export const FURNISHED_STATUS_OPTIONS = [
@@ -59,6 +69,11 @@ export const VILLA_AMENITIES_OPTIONS = [
   'Private Pool',
   'Private Garden',
   'Private Boundary Wall',
+  'Home Theatre',
+  'Gym / Fitness Room',
+  'Guest Suite',
+  'Staff Quarters',
+  'Solar Power System',
 ];
 
 export const ACCESS_ROAD_TYPES = [
@@ -87,4 +102,11 @@ export const SOIL_AND_INFRASTRUCTURE = [
   'Crop Fallow Durations and Soil Health',
   'Water Pump and Borewell Irrigation Capacities',
   'Solar Power Grid Infrastructure',
+];
+
+export const OWNERSHIP_TYPES = [
+  'Freehold',
+  'Leasehold',
+  'Co-operative',
+  'Power of Attorney',
 ];

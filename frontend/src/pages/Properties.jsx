@@ -145,6 +145,64 @@ export default function Properties() {
               </select>
             </div>
 
+            {/* Dynamic Type-Specific Filters */}
+            {(() => {
+              const selType = filters.property_type;
+              if (['House', 'Villa', 'Apartment'].includes(selType)) {
+                return (
+                  <div>
+                    <label style={{ fontSize: '10px', color: '#818cf8', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Bedrooms</label>
+                    <select
+                      value={filters.bedrooms || ''}
+                      onChange={(e) => handleFilterChange('bedrooms', e.target.value)}
+                      style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      <option value="" style={{ backgroundColor: '#0d0925' }}>Any Bedrooms</option>
+                      <option value="1" style={{ backgroundColor: '#0d0925' }}>1+ BHK</option>
+                      <option value="2" style={{ backgroundColor: '#0d0925' }}>2+ BHK</option>
+                      <option value="3" style={{ backgroundColor: '#0d0925' }}>3+ BHK</option>
+                      <option value="4" style={{ backgroundColor: '#0d0925' }}>4+ BHK</option>
+                    </select>
+                  </div>
+                );
+              }
+              if (selType === 'Agricultural Land') {
+                return (
+                  <div>
+                    <label style={{ fontSize: '10px', color: '#10b981', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Cropping</label>
+                    <select
+                      value={filters.cropping_intensity || ''}
+                      onChange={(e) => handleFilterChange('cropping_intensity', e.target.value)}
+                      style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      <option value="" style={{ backgroundColor: '#0d0925' }}>Any Cropping</option>
+                      <option value="Single-crop" style={{ backgroundColor: '#0d0925' }}>Single-crop</option>
+                      <option value="Dual-crop" style={{ backgroundColor: '#0d0925' }}>Dual-crop</option>
+                      <option value="Multiple-crop" style={{ backgroundColor: '#0d0925' }}>Multiple-crop</option>
+                    </select>
+                  </div>
+                );
+              }
+              if (['Residential Plot', 'Commercial Plot'].includes(selType)) {
+                return (
+                  <div>
+                    <label style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Access Road</label>
+                    <select
+                      value={filters.access_road_type || ''}
+                      onChange={(e) => handleFilterChange('access_road_type', e.target.value)}
+                      style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
+                    >
+                      <option value="" style={{ backgroundColor: '#0d0925' }}>Any Road Access</option>
+                      <option value="Highway Road" style={{ backgroundColor: '#0d0925' }}>Highway Road</option>
+                      <option value="Main Arterial Road" style={{ backgroundColor: '#0d0925' }}>Main Arterial Road</option>
+                      <option value="Minor Local Road" style={{ backgroundColor: '#0d0925' }}>Minor Local Road</option>
+                    </select>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             <div>
               <label style={{ fontSize: '10px', color: '#818cf8', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Sort Listings By</label>
               <select

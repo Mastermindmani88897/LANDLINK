@@ -7,6 +7,7 @@ import {
 import PropertyImage from './PropertyImage';
 import { api } from '../services/api';
 import { useAppStore } from '../store/store';
+import { resolvePropertyType } from '../utils/propertyFieldConfig';
 
 export default function PropertyCard({ property, onFavoriteToggle }) {
   const navigate = useNavigate();
@@ -185,28 +186,112 @@ export default function PropertyCard({ property, onFavoriteToggle }) {
           </p>
         </div>
 
-        {/* Property Specs Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.625rem 0.75rem', borderRadius: '0.75rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)' }}>
-          {property?.bedrooms != null && property?.bedrooms > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              <Bed size={15} style={{ color: '#818cf8' }} />
-              <span>{property.bedrooms} Bed</span>
-            </div>
-          )}
+        {/* Property Specs Bar — Type Aware */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', padding: '0.625rem 0.75rem', borderRadius: '0.75rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)', overflow: 'hidden' }}>
+          {(() => {
+            const rawType = property?.property_type || property?.house_type;
+            const canonicalType = resolvePropertyType(rawType);
 
-          {property?.bathrooms != null && property?.bathrooms > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              <Bath size={15} style={{ color: '#818cf8' }} />
-              <span>{property.bathrooms} Bath</span>
-            </div>
-          )}
+            if (['House', 'Villa', 'Apartment'].includes(canonicalType)) {
+              return (
+                <>
+                  {property?.bedrooms != null && property?.bedrooms > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      <Bed size={15} style={{ color: '#818cf8' }} />
+                      <span>{property.bedrooms} Bed</span>
+                    </div>
+                  )}
+                  {property?.bathrooms != null && property?.bathrooms > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      <Bath size={15} style={{ color: '#818cf8' }} />
+                      <span>{property.bathrooms} Bath</span>
+                    </div>
+                  )}
+                  {canonicalType === 'Apartment' && property?.flat_floor_number ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8' }}>
+                      <span>Fl. {property.flat_floor_number}</span>
+                    </div>
+                  ) : (
+                    (property?.area_sqft || property?.area) && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        <Maximize size={15} style={{ color: '#818cf8' }} />
+                        <span>{property.area_sqft || property.area} {property?.area_unit || 'sq.ft'}</span>
+                      </div>
+                    )
+                  )}
+                </>
+              );
+            }
 
-          {(property?.area_sqft || property?.area || property?.plot_area_sqft) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              <Maximize size={15} style={{ color: '#818cf8' }} />
-              <span>{property.area_sqft || property.area || property.plot_area_sqft} sq.ft</span>
-            </div>
-          )}
+            if (canonicalType === 'Agricultural Land') {
+              return (
+                <>
+                  {(property?.area_sqft || property?.area) && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      <Maximize size={15} style={{ color: '#10b981' }} />
+                      <span>{property.area_sqft || property.area} {property?.area_unit || 'sq.ft'}</span>
+                    </div>
+                  )}
+                  {property?.cropping_intensity && (
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#34d399' }}>
+                      {property.cropping_intensity}
+                    </div>
+                  )}
+                  {property?.access_road_type && (
+                    <div style={{ fontSize: '0.71875rem', fontWeight: 600, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {property.access_road_type}
+                    </div>
+                  )}
+                </>
+              );
+            }
+
+            if (['Commercial Plot', 'Commercial Building'].includes(canonicalType)) {
+              return (
+                <>
+                  {(property?.area_sqft || property?.area) && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      <Maximize size={15} style={{ color: '#ef4444' }} />
+                      <span>{property.area_sqft || property.area} {property?.area_unit || 'sq.ft'}</span>
+                    </div>
+                  )}
+                  {canonicalType === 'Commercial Building' && property?.floors ? (
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f97316' }}>
+                      {property.floors} Floors
+                    </div>
+                  ) : (
+                    property?.plot_facing && (
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f97316' }}>
+                        Facing {property.plot_facing}
+                      </div>
+                    )
+                  )}
+                </>
+              );
+            }
+
+            // Residential Plot
+            return (
+              <>
+                {(property?.area_sqft || property?.area) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    <Maximize size={15} style={{ color: '#f59e0b' }} />
+                    <span>{property.area_sqft || property.area} {property?.area_unit || 'sq.ft'}</span>
+                  </div>
+                )}
+                {property?.plot_facing && (
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>
+                    {property.plot_facing} Facing
+                  </div>
+                )}
+                {property?.access_road_type && (
+                  <div style={{ fontSize: '0.71875rem', fontWeight: 600, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {property.access_road_type}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </motion.div>
