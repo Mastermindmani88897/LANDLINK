@@ -273,8 +273,8 @@ export default function Profile() {
 
       {/* Edit Profile Modal */}
       {isEditProfileOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
-          <div style={{ width: '100%', maxWidth: '26rem', background: '#0c0728', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '1.25rem', padding: '1.75rem', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: 'var(--modal-overlay)', backdropFilter: 'blur(8px)' }}>
+          <div style={{ width: '100%', maxWidth: '26rem', background: 'var(--modal-bg)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '1.25rem', padding: '1.75rem', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white' }}>Edit Profile Information</h3>
               <button onClick={() => setIsEditProfileOpen(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>

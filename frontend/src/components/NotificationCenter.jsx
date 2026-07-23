@@ -95,7 +95,7 @@ export default function NotificationCenter() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '2px solid #0c0728',
+              border: '2px solid var(--nav-bg)',
             }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}

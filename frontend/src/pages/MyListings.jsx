@@ -201,7 +201,7 @@ export default function MyListings() {
       {/* Delete Confirmation Modal */}
       {deleteId && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '26rem', padding: '1.75rem', borderRadius: '1.25rem', backgroundColor: '#0c0728', border: '1px solid rgba(239,68,68,0.3)', textAlign: 'center', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '26rem', padding: '1.75rem', borderRadius: '1.25rem', backgroundColor: 'var(--modal-bg)', border: '1px solid rgba(239,68,68,0.3)', textAlign: 'center', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
             <AlertTriangle size={48} style={{ color: '#fb7185', margin: '0 auto 1rem' }} />
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.5rem' }}>Delete Property</h3>
             <p style={{ fontSize: '0.875rem', color: '#cbd5e1', marginBottom: '1.5rem' }}>

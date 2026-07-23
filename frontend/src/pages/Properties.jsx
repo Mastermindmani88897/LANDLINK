@@ -70,7 +70,7 @@ export default function Properties() {
       <SEO title="Browse Properties - Search Marketplace" description="Search verified houses, villas, flats, apartments, and commercial real estate directly from owners." />
 
       {/* Top Banner & Search Quick Bar */}
-      <div style={{ backgroundColor: 'rgba(12,7,40,0.8)', borderBottom: '1px solid var(--card-border)', paddingTop: '2.5rem', paddingBottom: '2rem' }}>
+      <div style={{ backgroundColor: 'var(--filter-banner-bg)', borderBottom: '1px solid var(--filter-banner-border)', paddingTop: '2.5rem', paddingBottom: '2rem' }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1.5rem' }}>
             <div>
@@ -140,8 +140,8 @@ export default function Properties() {
                 onChange={(e) => handleFilterChange('property_type', e.target.value)}
                 style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
               >
-                <option value="" style={{ backgroundColor: '#0d0925' }}>All Types</option>
-                {PROPERTY_TYPES.map((pt) => <option key={pt} value={pt} style={{ backgroundColor: '#0d0925' }}>{pt}</option>)}
+                <option value="" style={{ backgroundColor: 'var(--filter-option-bg)' }}>All Types</option>
+                {PROPERTY_TYPES.map((pt) => <option key={pt} value={pt} style={{ backgroundColor: 'var(--filter-option-bg)' }}>{pt}</option>)}
               </select>
             </div>
 
@@ -157,11 +157,11 @@ export default function Properties() {
                       onChange={(e) => handleFilterChange('bedrooms', e.target.value)}
                       style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
                     >
-                      <option value="" style={{ backgroundColor: '#0d0925' }}>Any Bedrooms</option>
-                      <option value="1" style={{ backgroundColor: '#0d0925' }}>1+ BHK</option>
-                      <option value="2" style={{ backgroundColor: '#0d0925' }}>2+ BHK</option>
-                      <option value="3" style={{ backgroundColor: '#0d0925' }}>3+ BHK</option>
-                      <option value="4" style={{ backgroundColor: '#0d0925' }}>4+ BHK</option>
+                      <option value="" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Any Bedrooms</option>
+                      <option value="1" style={{ backgroundColor: 'var(--filter-option-bg)' }}>1+ BHK</option>
+                      <option value="2" style={{ backgroundColor: 'var(--filter-option-bg)' }}>2+ BHK</option>
+                      <option value="3" style={{ backgroundColor: 'var(--filter-option-bg)' }}>3+ BHK</option>
+                      <option value="4" style={{ backgroundColor: 'var(--filter-option-bg)' }}>4+ BHK</option>
                     </select>
                   </div>
                 );
@@ -175,10 +175,10 @@ export default function Properties() {
                       onChange={(e) => handleFilterChange('cropping_intensity', e.target.value)}
                       style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
                     >
-                      <option value="" style={{ backgroundColor: '#0d0925' }}>Any Cropping</option>
-                      <option value="Single-crop" style={{ backgroundColor: '#0d0925' }}>Single-crop</option>
-                      <option value="Dual-crop" style={{ backgroundColor: '#0d0925' }}>Dual-crop</option>
-                      <option value="Multiple-crop" style={{ backgroundColor: '#0d0925' }}>Multiple-crop</option>
+                      <option value="" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Any Cropping</option>
+                      <option value="Single-crop" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Single-crop</option>
+                      <option value="Dual-crop" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Dual-crop</option>
+                      <option value="Multiple-crop" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Multiple-crop</option>
                     </select>
                   </div>
                 );
@@ -192,10 +192,10 @@ export default function Properties() {
                       onChange={(e) => handleFilterChange('access_road_type', e.target.value)}
                       style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
                     >
-                      <option value="" style={{ backgroundColor: '#0d0925' }}>Any Road Access</option>
-                      <option value="Highway Road" style={{ backgroundColor: '#0d0925' }}>Highway Road</option>
-                      <option value="Main Arterial Road" style={{ backgroundColor: '#0d0925' }}>Main Arterial Road</option>
-                      <option value="Minor Local Road" style={{ backgroundColor: '#0d0925' }}>Minor Local Road</option>
+                      <option value="" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Any Road Access</option>
+                      <option value="Highway Road" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Highway Road</option>
+                      <option value="Main Arterial Road" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Main Arterial Road</option>
+                      <option value="Minor Local Road" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Minor Local Road</option>
                     </select>
                   </div>
                 );
@@ -210,10 +210,10 @@ export default function Properties() {
                 onChange={(e) => handleFilterChange('sort_by', e.target.value)}
                 style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer' }}
               >
-                <option value="newest" style={{ backgroundColor: '#0d0925' }}>Newest Listed</option>
-                <option value="price_low" style={{ backgroundColor: '#0d0925' }}>Price: Low to High</option>
-                <option value="price_high" style={{ backgroundColor: '#0d0925' }}>Price: High to Low</option>
-                <option value="area_high" style={{ backgroundColor: '#0d0925' }}>Largest Area</option>
+                <option value="newest" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Newest Listed</option>
+                <option value="price_low" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Price: Low to High</option>
+                <option value="price_high" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Price: High to Low</option>
+                <option value="area_high" style={{ backgroundColor: 'var(--filter-option-bg)' }}>Largest Area</option>
               </select>
             </div>
           </div>

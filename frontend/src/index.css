@@ -11,17 +11,75 @@
   --accent-success: #10b981;
   --accent-warning: #f59e0b;
   --accent-error: #ef4444;
+
+  /* Navbar-specific tokens */
+  --nav-bg: rgba(3, 0, 20, 0.85);
+  --nav-mobile-bg: rgba(3, 0, 20, 0.98);
+  --nav-mobile-border: rgba(255, 255, 255, 0.06);
+  --nav-control-bg: rgba(255, 255, 255, 0.04);
+  --nav-control-border: rgba(255, 255, 255, 0.08);
+  --nav-dropdown-bg: #0d0925;
+  --nav-dropdown-text: #ffffff;
+  --nav-dropdown-shadow: rgba(0, 0, 0, 0.5);
+  --nav-logo-text: linear-gradient(to right, #ffffff, #c7d2fe, #818cf8);
+
+  /* Auth modal tokens */
+  --modal-bg: #0c0728;
+  --modal-overlay: rgba(0, 0, 0, 0.85);
+  --modal-divider-bg: #0c0728;
+  --modal-label-color: #cbd5e1;
+  --modal-subtext-color: #94a3b8;
+
+  /* Filter section tokens */
+  --filter-banner-bg: rgba(12, 7, 40, 0.8);
+  --filter-banner-border: rgba(255, 255, 255, 0.06);
+  --filter-option-bg: #0d0925;
+
+  /* Secondary button */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.03);
+  --btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.06);
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.15);
 }
 
 .light-theme {
-  --bg-gradient: radial-gradient(125% 125% at 50% 10%, #f8fafc 40%, #e2e8f0 70%, #cbd5e1 100%);
-  --card-bg: rgba(15, 23, 42, 0.02);
-  --card-border: rgba(15, 23, 42, 0.06);
-  --card-hover-border: rgba(99, 102, 241, 0.5);
+  --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e8edf5 40%, #dde5f0 100%);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(15, 23, 42, 0.1);
+  --card-hover-border: rgba(79, 70, 229, 0.45);
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --accent: #4f46e5;
   --accent-hover: #3730a3;
+
+  /* Navbar-specific tokens — light mode */
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --nav-mobile-bg: rgba(248, 250, 252, 0.98);
+  --nav-mobile-border: rgba(15, 23, 42, 0.1);
+  --nav-control-bg: rgba(15, 23, 42, 0.05);
+  --nav-control-border: rgba(15, 23, 42, 0.12);
+  --nav-dropdown-bg: #ffffff;
+  --nav-dropdown-text: #0f172a;
+  --nav-dropdown-shadow: rgba(15, 23, 42, 0.15);
+  --nav-logo-text: linear-gradient(to right, #1e1b4b, #4338ca, #6366f1);
+
+  /* Auth modal tokens — light mode */
+  --modal-bg: #ffffff;
+  --modal-overlay: rgba(15, 23, 42, 0.6);
+  --modal-divider-bg: #ffffff;
+  --modal-label-color: #334155;
+  --modal-subtext-color: #64748b;
+
+  /* Filter section tokens — light mode */
+  --filter-banner-bg: rgba(248, 250, 252, 0.95);
+  --filter-banner-border: rgba(15, 23, 42, 0.1);
+  --filter-option-bg: #ffffff;
+
+  /* Secondary button — light mode */
+  --btn-secondary-bg: rgba(15, 23, 42, 0.04);
+  --btn-secondary-border: rgba(15, 23, 42, 0.12);
+  --btn-secondary-hover-bg: rgba(15, 23, 42, 0.08);
+  --btn-secondary-hover-border: rgba(15, 23, 42, 0.2);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
@@ -61,6 +119,14 @@ body {
   box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
 }
 
+.light-theme .glass-panel {
+  box-shadow: 0 4px 24px 0 rgba(15, 23, 42, 0.08);
+}
+
+.light-theme .glass-panel:hover {
+  box-shadow: 0 8px 32px 0 rgba(79, 70, 229, 0.12);
+}
+
 /* ─── Inputs ─────────────────────────────────────────────────────────────── */
 .glass-input {
   background: rgba(255, 255, 255, 0.02);
@@ -82,17 +148,26 @@ body {
 }
 
 .light-theme .glass-input {
-  background: rgba(15, 23, 42, 0.01);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  color: #0f172a;
+}
+
+.light-theme .glass-input::placeholder {
+  color: #94a3b8;
 }
 
 .light-theme .glass-input:focus {
-  background: rgba(15, 23, 42, 0.03);
+  background: #ffffff;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
-select.glass-input option {
-  background: #0d0925;
-  color: #f8fafc;
+/* Select option backgrounds for dark/light */
+select.glass-input option,
+select option {
+  background: var(--filter-option-bg, #0d0925);
+  color: var(--nav-dropdown-text, #f8fafc);
 }
 
 /* ─── Buttons ────────────────────────────────────────────────────────────── */
@@ -122,8 +197,8 @@ select.glass-input option {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--btn-secondary-border);
   color: var(--text-primary);
   font-weight: 500;
   border-radius: 12px;
@@ -134,9 +209,10 @@ select.glass-input option {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--btn-secondary-hover-bg);
+  border-color: var(--btn-secondary-hover-border);
 }
+
 
 /* ─── Typography Utilities ───────────────────────────────────────────────── */
 .gradient-text {
@@ -1674,3 +1750,67 @@ select.glass-input option {
     line-height: 2.5rem;
   }
 }
+
+/* ─── Light Mode — Scrollbar ─────────────────────────────────────────────── */
+.light-theme ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.light-theme ::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.15);
+}
+
+/* ─── Light Mode — Gradient Text Fix ─────────────────────────────────────── */
+.light-theme .gradient-text {
+  background: linear-gradient(to right, #4338ca, #4f46e5, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Light Mode — White/Opacity Utility Overrides ───────────────────────── */
+/* These dark-mode utilities use white-alpha which is invisible on light bg */
+.light-theme .bg-white\/2   { background-color: rgba(15, 23, 42, 0.02); }
+.light-theme .bg-white\/3   { background-color: rgba(15, 23, 42, 0.03); }
+.light-theme .bg-white\/5   { background-color: rgba(15, 23, 42, 0.05); }
+.light-theme .bg-white\/6   { background-color: rgba(15, 23, 42, 0.06); }
+.light-theme .border-white\/5  { border-color: rgba(15, 23, 42, 0.05); }
+.light-theme .border-white\/10 { border-color: rgba(15, 23, 42, 0.10); }
+.light-theme .border-white\/15 { border-color: rgba(15, 23, 42, 0.15); }
+.light-theme .hover\:bg-white\/5:hover  { background-color: rgba(15, 23, 42, 0.05); }
+.light-theme .hover\:bg-white\/6:hover  { background-color: rgba(15, 23, 42, 0.06); }
+.light-theme .hover\:border-white\/15:hover { border-color: rgba(15, 23, 42, 0.15); }
+
+/* ─── Light Mode — Black/opacity utilities now use dark ink on light bg ──── */
+.light-theme .bg-black\/20 { background-color: rgba(15, 23, 42, 0.07); }
+.light-theme .bg-black\/30 { background-color: rgba(15, 23, 42, 0.10); }
+.light-theme .bg-black\/40 { background-color: rgba(15, 23, 42, 0.14); }
+.light-theme .bg-black\/50 { background-color: rgba(15, 23, 42, 0.18); }
+
+/* ─── Light Mode — Text colour overrides ─────────────────────────────────── */
+/* Keep slate-100/200/300 readable in light mode */
+.light-theme .text-slate-100 { color: #1e293b; }
+.light-theme .text-slate-200 { color: #334155; }
+.light-theme .text-slate-300 { color: #475569; }
+/* White text becomes dark on light backgrounds */
+.light-theme .text-white     { color: #0f172a; }
+
+/* ─── Light Mode — Navbar Component ──────────────────────────────────────── */
+/* These classes appear in Navbar.jsx inline styles; we override via token-based approach */
+/* The Navbar reads --nav-bg, --nav-mobile-bg etc. from CSS variables (set above) */
+
+/* ─── Light Mode — Filter Section ────────────────────────────────────────── */
+/* The filter banner and select dropdowns read from --filter-banner-bg etc. */
+
+/* ─── Light Mode — Dark background utility classes used in cards/modals ──── */
+.light-theme .bg-\[\#0d0925\]     { background-color: #f8fafc; }
+.light-theme .bg-\[\#0d0925\]\/90 { background-color: rgba(248, 250, 252, 0.9); }
+.light-theme .bg-slate-800        { background-color: #e2e8f0; }
+.light-theme .bg-slate-900        { background-color: #f1f5f9; }
+
+/* ─── Light Mode — Indigo tinted backgrounds look fine on both themes ─────── */
+/* No overrides needed — indigo colours work in both modes */
+
+/* ─── Light Mode — Image overlay gradients ───────────────────────────────── */
+/* Keep property card image overlays fully opaque — they sit on top of images */
+/* so no override needed; black gradients are fine on top of photos */

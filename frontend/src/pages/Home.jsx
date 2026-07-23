@@ -167,13 +167,13 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', textAlign: 'left', padding: '0 0.5rem', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
             <span style={{ fontSize: '11px', color: '#818cf8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.searchCategory}</span>
             <select value={searchType} onChange={(e) => setSearchType(e.target.value)} style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '0.9375rem', color: '#f1f5f9', fontFamily: 'inherit', fontWeight: 600, cursor: 'pointer' }}>
-              <option value="" style={{ backgroundColor: '#0d0925' }}>{t.allCategories}</option>
-              <option value="House" style={{ backgroundColor: '#0d0925' }}>{t.house}</option>
-              <option value="Villa" style={{ backgroundColor: '#0d0925' }}>{t.villa}</option>
-              <option value="Apartment" style={{ backgroundColor: '#0d0925' }}>{t.apartment}</option>
-              <option value="Flat" style={{ backgroundColor: '#0d0925' }}>{t.flat}</option>
-              <option value="Land" style={{ backgroundColor: '#0d0925' }}>{t.land}</option>
-              <option value="Commercial" style={{ backgroundColor: '#0d0925' }}>{t.commercial}</option>
+              <option value="" style={{ backgroundColor: 'var(--filter-option-bg)' }}>{t.allCategories}</option>
+              <option value="House" style={{ backgroundColor: 'var(--filter-option-bg)' }}>{t.house}</option>
+              <option value="Villa" style={{ backgroundColor: 'var(--filter-option-bg)' }}>{t.villa}</option>
+              <option value="Apartment" style={{ backgroundColor: 'var(--filter-option-bg)' }}>{t.apartment}</option>
+              <option value="Flat" style={{ backgroundColor: 'var(--filter-option-bg)' }}>{t.flat}</option>
+              <option value="Land" style={{ backgroundColor: 'var(--filter-option-bg)' }}>{t.land}</option>
+              <option value="Commercial" style={{ backgroundColor: 'var(--filter-option-bg)' }}>{t.commercial}</option>
             </select>
           </div>
 

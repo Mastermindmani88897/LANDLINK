@@ -100,7 +100,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav style={{ position: 'sticky', top: 0, zIndex: 40, width: '100%', backgroundColor: 'rgba(3,0,20,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid var(--card-border)' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 40, width: '100%', backgroundColor: 'var(--nav-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid var(--card-border)' }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -108,7 +108,7 @@ export default function Navbar() {
               <div style={{ borderRadius: '0.75rem', background: 'linear-gradient(135deg, #6366f1, #7c3aed)', padding: '0.5rem', color: 'white', boxShadow: '0 4px 14px rgba(99,102,241,0.4)' }}>
                 <Building2 size={22} />
               </div>
-              <span style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.025em', background: 'linear-gradient(to right, #ffffff, #c7d2fe, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.025em', background: 'var(--nav-logo-text)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 {t.appName}
               </span>
             </Link>
@@ -140,16 +140,16 @@ export default function Navbar() {
             {/* Controls */}
             <div className="hidden md:flex items-center gap-4">
               {/* Language Selector */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', backgroundColor: 'rgba(255,255,255,0.04)', padding: '0.25rem 0.5rem', borderRadius: '0.625rem', border: '1px solid var(--card-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', backgroundColor: 'var(--nav-control-bg)', padding: '0.25rem 0.5rem', borderRadius: '0.625rem', border: '1px solid var(--nav-control-border)' }}>
                 <Globe size={14} style={{ color: '#818cf8' }} />
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.75rem', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.75rem', fontWeight: 600, outline: 'none', cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none' }}
                 >
-                  <option value="en" style={{ backgroundColor: '#0d0925', color: '#fff' }}>English</option>
-                  <option value="hi" style={{ backgroundColor: '#0d0925', color: '#fff' }}>हिंदी (Hindi)</option>
-                  <option value="te" style={{ backgroundColor: '#0d0925', color: '#fff' }}>తెలుగు (Telugu)</option>
+                  <option value="en" style={{ backgroundColor: 'var(--filter-option-bg)', color: 'var(--nav-dropdown-text)' }}>English</option>
+                  <option value="hi" style={{ backgroundColor: 'var(--filter-option-bg)', color: 'var(--nav-dropdown-text)' }}>हिंदी (Hindi)</option>
+                  <option value="te" style={{ backgroundColor: 'var(--filter-option-bg)', color: 'var(--nav-dropdown-text)' }}>తెలుగు (Telugu)</option>
                 </select>
               </div>
 
@@ -158,20 +158,20 @@ export default function Navbar() {
                 <button
                   onClick={() => setShowThemeMenu(!showThemeMenu)}
                   title="Switch Theme"
-                  style={{ borderRadius: '0.75rem', padding: '0.5rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--card-border)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                  style={{ borderRadius: '0.75rem', padding: '0.5rem', color: 'var(--text-secondary)', background: 'var(--nav-control-bg)', border: '1px solid var(--nav-control-border)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                 >
                   {theme === 'light' ? <Sun size={18} /> : theme === 'dark' ? <Moon size={18} /> : <Laptop size={18} />}
                 </button>
 
                 {showThemeMenu && (
-                  <div style={{ position: 'absolute', right: 0, marginTop: '0.5rem', width: '130px', backgroundColor: '#0d0925', border: '1px solid var(--card-border)', borderRadius: '0.75rem', padding: '0.375rem', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 50 }}>
-                    <button onClick={() => { setTheme('light'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'light' ? '#818cf8' : 'white', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
+                  <div style={{ position: 'absolute', right: 0, marginTop: '0.5rem', width: '130px', backgroundColor: 'var(--nav-dropdown-bg)', border: '1px solid var(--card-border)', borderRadius: '0.75rem', padding: '0.375rem', boxShadow: `0 10px 30px var(--nav-dropdown-shadow)`, zIndex: 50 }}>
+                    <button onClick={() => { setTheme('light'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'light' ? '#818cf8' : 'var(--nav-dropdown-text)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
                       <Sun size={14} /> Light Mode
                     </button>
-                    <button onClick={() => { setTheme('dark'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'dark' ? '#818cf8' : 'white', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
+                    <button onClick={() => { setTheme('dark'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'dark' ? '#818cf8' : 'var(--nav-dropdown-text)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
                       <Moon size={14} /> Dark Mode
                     </button>
-                    <button onClick={() => { setTheme('system'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'system' ? '#818cf8' : 'white', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
+                    <button onClick={() => { setTheme('system'); setShowThemeMenu(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', fontSize: '0.75rem', fontWeight: 600, color: theme === 'system' ? '#818cf8' : 'var(--nav-dropdown-text)', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '0.5rem' }}>
                       <Laptop size={14} /> System
                     </button>
                   </div>
@@ -219,7 +219,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div style={{ backgroundColor: 'rgba(3,0,20,0.98)', padding: '0.5rem 1rem 1rem', borderBottom: '1px solid var(--card-border)' }}>
+          <div style={{ backgroundColor: 'var(--nav-mobile-bg)', padding: '0.5rem 1rem 1rem', borderBottom: '1px solid var(--nav-mobile-border)' }}>
             <div style={{ marginBottom: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <Globe size={14} style={{ color: '#818cf8' }} />
               <select value={language} onChange={(e) => setLanguage(e.target.value)} className="glass-input" style={{ fontSize: '0.75rem' }}>
@@ -263,8 +263,8 @@ export default function Navbar() {
 
       {/* Auth Modal */}
       {isAuthModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
-          <div style={{ position: 'relative', width: '100%', maxWidth: '26rem', background: '#0c0728', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '1.25rem', padding: '1.75rem 2rem', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: 'var(--modal-overlay)', backdropFilter: 'blur(8px)' }}>
+          <div style={{ position: 'relative', width: '100%', maxWidth: '26rem', background: 'var(--modal-bg)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '1.25rem', padding: '1.75rem 2rem', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}>
             <button onClick={() => closeAuthModal()} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} />
             </button>
@@ -273,8 +273,8 @@ export default function Navbar() {
               <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', color: '#818cf8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', marginBottom: '0.25rem' }}>
                 <Sparkles size={13} /> {t.appName}
               </span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>{authMode === 'login' ? 'Welcome Back' : 'Create Account'}</h3>
-              <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>{authMode === 'login' ? 'Welcome Back' : 'Create Account'}</h3>
+              <p style={{ fontSize: '0.75rem', color: 'var(--modal-subtext-color)', marginTop: '0.25rem' }}>
                 Sign in to access Buying Options, Selling Options, and Personal Settings
               </p>
             </div>
@@ -289,21 +289,21 @@ export default function Navbar() {
               {authMode === 'register' && (
                 <>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.375rem' }}>{t.fullName}</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--modal-label-color)', marginBottom: '0.375rem' }}>{t.fullName}</label>
                     <input type="text" required placeholder="e.g. Manikanta" value={fullName} onChange={(e) => setFullName(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.375rem' }}>{t.mobile}</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--modal-label-color)', marginBottom: '0.375rem' }}>{t.mobile}</label>
                     <input type="tel" placeholder="+91 9876543210" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
                   </div>
                 </>
               )}
               <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.375rem' }}>{t.email}</label>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--modal-label-color)', marginBottom: '0.375rem' }}>{t.email}</label>
                 <input type="email" required placeholder="name@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} className="glass-input" style={{ fontSize: '0.875rem' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.375rem' }}>Password</label>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--modal-label-color)', marginBottom: '0.375rem' }}>Password</label>
                 <PasswordInput
                   required
                   placeholder="••••••••"
@@ -318,8 +318,8 @@ export default function Navbar() {
             </form>
 
             <div style={{ position: 'relative', textAlign: 'center', margin: '1.25rem 0' }}>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}><div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.08)' }}></div></div>
-              <span style={{ position: 'relative', backgroundColor: '#0c0728', padding: '0 0.75rem', fontSize: '0.625rem', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 600 }}>Or continue with</span>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}><div style={{ width: '100%', borderTop: '1px solid var(--card-border)' }}></div></div>
+              <span style={{ position: 'relative', backgroundColor: 'var(--modal-divider-bg)', padding: '0 0.75rem', fontSize: '0.625rem', textTransform: 'uppercase', color: 'var(--modal-subtext-color)', fontWeight: 600 }}>Or continue with</span>
             </div>
 
             <button
@@ -328,9 +328,9 @@ export default function Navbar() {
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 gap: '0.625rem', padding: '0.625rem 1rem', borderRadius: '0.75rem',
-                border: '1px solid rgba(255,255,255,0.12)', background: isLoading ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.04)',
+                border: '1px solid var(--nav-control-border)', background: isLoading ? 'rgba(127,127,127,0.04)' : 'var(--nav-control-bg)',
                 cursor: isLoading ? 'not-allowed' : 'pointer', fontSize: '0.8125rem',
-                fontWeight: 600, color: 'white', transition: 'background 0.2s',
+                fontWeight: 600, color: 'var(--text-primary)', transition: 'background 0.2s',
                 opacity: isLoading ? 0.6 : 1,
               }}
               onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
@@ -346,7 +346,7 @@ export default function Navbar() {
               {isLoading ? 'Signing in...' : 'Continue with Google'}
             </button>
 
-            <div style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.75rem', color: 'var(--modal-subtext-color)' }}>
               {authMode === 'login' ? (
                 <>Don't have an account?{' '}<button onClick={() => { setAuthMode('register'); setErrorMsg(''); }} style={{ color: '#818cf8', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>Register here</button></>
               ) : (
