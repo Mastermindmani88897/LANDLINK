@@ -48,11 +48,17 @@ export const api = {
     return apiFetch('/auth/register', { method: 'POST', body: JSON.stringify(payload) });
   },
 
-  async googleLogin(payload) {
-    const data = await apiFetch('/auth/google-login', { method: 'POST', body: JSON.stringify(payload) });
+  async googleLogin(access_token) {
+    // Send the Google access token — backend verifies it via Google's tokeninfo + userinfo endpoints
+    const data = await apiFetch('/auth/google-login', { method: 'POST', body: JSON.stringify({ access_token }) });
     const profile = await apiFetch('/auth/me', { headers: { Authorization: `Bearer ${data.access_token}` } });
     useAppStore.getState().setAuth(data.access_token, profile);
     return { token: data.access_token, user: profile };
+  },
+
+  // Alias used by Navbar's useGoogleLogin hook
+  async googleLoginWithAccessToken(access_token) {
+    return this.googleLogin(access_token);
   },
 
   async getMe() {
